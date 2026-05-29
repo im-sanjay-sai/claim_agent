@@ -10,7 +10,7 @@
 ## EDI Data Flow
 
 - I downloaded sample EDI data and used it as the claim source for testing.
-- I wrote a Python parser in `edi_parser.py` to extract useful claim fields from raw 837 files.
+- I wrote a Python parser in `edi_parser.py` which uses the standadrd lib for extracting edi files
 - The parser normalizes provider, patient, member, payer, service date, charge, and service-line data.
 - `claim_store.py` loads those parsed claims into `data/claims.json`.
 - The UI reads from that claim store so a user can select claims before starting a call.
@@ -55,7 +55,7 @@
 - I added `record_claim_outcome` for final per-claim structured capture.
 - The agent uses it after each claim discussion before moving to the next claim or ending the call.
 - `record_claim_outcome` captures submitted claim ID, payer claim number, payer status, workflow status, payment fields, denial/remark codes, rep name, reference number, summary, and missing fields.
-- I also kept deterministic transcript extraction as a backup if the call disconnects before the final tool call.
+
 
 ## Recordings
 
@@ -65,12 +65,7 @@
 - They can also be used by another agent or evaluation workflow to analyze failures, compare TTS/STT behavior, and improve the call strategy over time.
 - In a real product, these recordings would need PHI-safe storage, access controls, and retention rules.
 
-## Key Tradeoffs
 
-- I used local JSON files instead of a database to keep the MVP fast to run.
-- I used a deterministic 837 parser instead of a full EDI vendor library because the take-home needed a focused working demo.
-- I used a no-build UI instead of React to reduce setup and keep the project easy to inspect.
-- I used explicit tool calls for important agent actions instead of relying only on transcript parsing.
 - I kept the architecture modular so claim extraction, call flow, tools, and storage can be swapped later.
 
 ## Testing

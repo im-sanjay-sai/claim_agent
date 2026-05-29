@@ -25,12 +25,19 @@ class KeypadPressResult(BaseModel):
     instruction: str | None = None
 
 
+class WaitForUserResult(BaseModel):
+    ok: bool
+    instruction: str
+
+
 def keypad_tool_schema() -> FunctionSchema:
     return FunctionSchema(
         name="press_keypad",
         description=(
-            "Send keypad tones to the IVR during the current call. Use this only when the "
-            "automated phone system asks the caller to press or enter digits."
+            "Send keypad tones to an automated IVR during the current call. Use this only "
+            "when the latest speaker is an automated phone system that explicitly asks the "
+            "caller to press, enter, dial, key in, select, or type digits. Never use this "
+            "for a live representative's spoken verification question."
         ),
         properties={
             "digits": {
@@ -47,6 +54,19 @@ def keypad_tool_schema() -> FunctionSchema:
             },
         },
         required=["digits", "reason"],
+    )
+
+
+def wait_for_user_tool_schema() -> FunctionSchema:
+    return FunctionSchema(
+        name="wait_for_user",
+        description=(
+            "End the current assistant turn without speaking or pressing keys. Use this when "
+            "the latest audio is silence, hold music, background noise, side conversation, "
+            "or anything not addressed to the assistant, and the agent should keep listening."
+        ),
+        properties={},
+        required=[],
     )
 
 
@@ -160,3 +180,22 @@ def make_press_keypad_handler(session_id: str):
         )
 
     return press_keypad
+
+
+def make_wait_for_user_handler(session_id: str):
+    async def wait_for_user(params: FunctionCallParams) -> None:
+        logger.info(f"Waiting for payer or IVR prompt for session {session_id}")
+        session_store.append_transcript(
+            session_id,
+            "tool",
+            "Waiting for a meaningful payer or IVR prompt.",
+        )
+        await params.result_callback(
+            WaitForUserResult(
+                ok=True,
+                instruction="Stay silent and keep listening for the next meaningful payer or IVR prompt.",
+            ).model_dump(),
+            properties=FunctionCallResultProperties(run_llm=False),
+        )
+
+    return wait_for_user

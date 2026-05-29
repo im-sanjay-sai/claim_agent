@@ -6,9 +6,15 @@ from claim_store import ClaimStore
 from claim_store import normalize_claim
 from edi_parser import parse_837_claims
 from extractor import extract_claim_status_results
-from ivr_tools import keypad_frames, normalize_initial_keypad_digits
+from ivr_tools import (
+    keypad_frames,
+    keypad_tool_schema,
+    normalize_initial_keypad_digits,
+    wait_for_user_tool_schema,
+)
 from models import CallRecording, ClaimCallOutcome, ClaimStatusResult, CreateCallRequest, TranscriptEntry
 from pipecat.frames.frames import OutputAudioRawFrame, OutputDTMFUrgentFrame
+from prompt_builder import build_claim_call_system_prompt, build_initial_user_message
 from recording_files import audio_duration_seconds, write_wav
 from server_utils import TwimlRequest, generate_twiml
 from session_store import SessionStore
@@ -126,6 +132,54 @@ def test_extract_claim_status_result():
     assert result.rep_name == "Alex Smith"
 
 
+def test_prompt_prevents_keypad_for_live_rep_and_unclear_audio():
+    claim = normalize_claim(
+        {
+            "claim_id": "CLM-PROMPT",
+            "payer_name": "Example Health",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Sam",
+            "patient_last_name": "Lee",
+            "patient_dob": "1980-01-01",
+            "member_id": "M001",
+            "date_of_service": "2026-04-01",
+        },
+        0,
+    )
+
+    prompt = build_claim_call_system_prompt([claim], "Example Health")
+
+    assert "If a live representative asks for NPI" in prompt
+    assert "Do not call `press_keypad`" in prompt
+    assert "Only call `press_keypad` when the latest speaker is an automated IVR" in prompt
+    assert "If the payer or IVR audio is unclear" in prompt
+    assert "call `wait_for_user` and do not speak" in prompt
+
+
+def test_prompt_starts_with_opening_line():
+    claim = normalize_claim(
+        {
+            "claim_id": "CLM-START",
+            "payer_name": "Example Health",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Sam",
+            "patient_last_name": "Lee",
+            "patient_dob": "1980-01-01",
+            "member_id": "M001",
+            "date_of_service": "2026-04-01",
+        },
+        0,
+    )
+
+    prompt = build_claim_call_system_prompt([claim], "Example Health")
+
+    assert "When the call connects, start by saying the opening line once." in prompt
+    assert "payer-facing claim status agent" in prompt
+    assert build_initial_user_message() == "The call has connected. Say the opening line now."
+
+
 def test_generate_twiml_includes_session_id(monkeypatch):
     monkeypatch.setenv("ENV", "local")
     monkeypatch.setenv("LOCAL_SERVER_URL", "https://example.ngrok.io")
@@ -165,6 +219,17 @@ def test_keypad_digit_validation():
         assert "80 characters" in str(e)
     else:
         raise AssertionError("Expected overlong keypad sequence to fail")
+
+
+def test_voice_control_tool_schemas_define_keypad_gate_and_wait_tool():
+    keypad_schema = keypad_tool_schema()
+    wait_schema = wait_for_user_tool_schema()
+
+    assert keypad_schema.name == "press_keypad"
+    assert "Never use this for a live representative" in keypad_schema.description
+    assert wait_schema.name == "wait_for_user"
+    assert wait_schema.required == []
+    assert "without speaking or pressing keys" in wait_schema.description
 
 
 def test_claim_outcome_status_validation():

@@ -10,7 +10,12 @@ from agent_tools import (
     save_missing_claim_outcomes,
 )
 from extractor import extract_claim_status_results
-from ivr_tools import keypad_tool_schema, make_press_keypad_handler
+from ivr_tools import (
+    keypad_tool_schema,
+    make_press_keypad_handler,
+    make_wait_for_user_handler,
+    wait_for_user_tool_schema,
+)
 from loguru import logger
 from pipecat.adapters.schemas.tools_schema import ToolsSchema
 from pipecat.audio.vad.silero import SileroVADAnalyzer
@@ -23,6 +28,7 @@ from pipecat.processors.aggregators.llm_response_universal import (
     LLMUserAggregatorParams,
     UserTurnStoppedMessage,
 )
+from pipecat.frames.frames import LLMMessagesAppendFrame
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import parse_telephony_websocket
 from pipecat.serializers.twilio import TwilioFrameSerializer
@@ -35,7 +41,7 @@ from pipecat.transports.websocket.fastapi import (
     FastAPIWebsocketTransport,
 )
 from pipecat.workers.runner import WorkerRunner
-from prompt_builder import build_claim_call_system_prompt
+from prompt_builder import build_claim_call_system_prompt, build_initial_user_message
 from recordings import LocalCallRecorder
 from session_store import session_store
 
@@ -59,6 +65,7 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool, session_id: str
         ),
     )
     llm.register_function("press_keypad", make_press_keypad_handler(session_id), timeout_secs=10)
+    llm.register_function("wait_for_user", make_wait_for_user_handler(session_id), timeout_secs=10)
     llm.register_function(
         "record_claim_outcome",
         make_record_claim_outcome_handler(session_id),
@@ -83,6 +90,7 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool, session_id: str
     tools = ToolsSchema(
         standard_tools=[
             keypad_tool_schema(),
+            wait_for_user_tool_schema(),
             claim_outcome_tool_schema(session.claim_ids),
         ]
     )
@@ -126,9 +134,20 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool, session_id: str
         session_store.append_transcript(
             session_id,
             "system",
-            "Twilio media stream connected; waiting for payer greeting or IVR prompt.",
+            "Twilio media stream connected; prompting assistant opening line.",
         )
         await recorder.start()
+        await worker.queue_frame(
+            LLMMessagesAppendFrame(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": build_initial_user_message(),
+                    }
+                ],
+                run_llm=True,
+            )
+        )
 
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
