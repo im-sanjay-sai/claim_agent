@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+E164_PHONE_RE = re.compile(r"^\+[1-9]\d{7,14}$")
 
 
 def utc_now() -> datetime:
@@ -113,6 +117,22 @@ class CreateCallRequest(BaseModel):
     payer_name: str | None = None
     initial_keypad_digits: str | None = None
     dry_run: bool = False
+
+    @field_validator("payer_phone", "from_number")
+    @classmethod
+    def validate_e164_phone(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not E164_PHONE_RE.fullmatch(cleaned):
+            raise ValueError("Phone numbers must use E.164 format, for example +15555550100.")
+        return cleaned
+
+    @field_validator("payer_name")
+    @classmethod
+    def clean_payer_name(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        cleaned = value.strip()
+        return cleaned or None
 
 
 class CreateCallResponse(BaseModel):

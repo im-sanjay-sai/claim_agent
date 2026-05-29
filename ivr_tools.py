@@ -63,6 +63,10 @@ def normalize_keypad_digits(
     if not normalized:
         return None
 
+    if len(normalized) > max_length:
+        label = "Keypad digits" if live_call else "Initial keypad digits"
+        raise ValueError(f"{label} must be {max_length} characters or fewer.")
+
     allowed = LIVE_KEYPAD_CHARS if live_call else INITIAL_KEYPAD_CHARS
     invalid = sorted({char for char in normalized if char not in allowed})
     if invalid:
@@ -70,8 +74,6 @@ def normalize_keypad_digits(
         raise ValueError(f"Invalid keypad character(s): {', '.join(invalid)}. Allowed: {allowed_text}.")
 
     if not live_call:
-        if len(normalized) > max_length:
-            raise ValueError(f"Initial keypad digits must be {max_length} characters or fewer.")
         normalized = "".join(
             char.upper() if char.lower() in {"a", "b", "c", "d"} else char
             for char in normalized

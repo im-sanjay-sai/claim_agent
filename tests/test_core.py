@@ -6,7 +6,7 @@ from claim_store import normalize_claim
 from edi_parser import parse_837_claims
 from extractor import extract_claim_status_results
 from ivr_tools import keypad_frames, normalize_initial_keypad_digits
-from models import CallRecording, TranscriptEntry
+from models import CallRecording, CreateCallRequest, TranscriptEntry
 from pipecat.frames.frames import OutputAudioRawFrame, OutputDTMFUrgentFrame
 from recording_files import audio_duration_seconds, write_wav
 from server_utils import TwimlRequest, generate_twiml
@@ -157,6 +157,33 @@ def test_keypad_digit_validation():
         assert "Invalid keypad" in str(e)
     else:
         raise AssertionError("Expected invalid keypad character to fail")
+
+    try:
+        keypad_frames("1" * 81)
+    except ValueError as e:
+        assert "80 characters" in str(e)
+    else:
+        raise AssertionError("Expected overlong keypad sequence to fail")
+
+
+def test_create_call_request_requires_e164_phone_numbers():
+    request = CreateCallRequest(
+        payer_phone=" +17167309413 ",
+        from_number="+16506145449",
+        claim_ids=["CLM-1"],
+    )
+    assert request.payer_phone == "+17167309413"
+
+    try:
+        CreateCallRequest(
+            payer_phone="7167309413",
+            from_number="+16506145449",
+            claim_ids=["CLM-1"],
+        )
+    except ValueError as e:
+        assert "E.164" in str(e)
+    else:
+        raise AssertionError("Expected non-E.164 phone number to fail")
 
 
 def test_write_wav_creates_playable_local_recording(tmp_path):

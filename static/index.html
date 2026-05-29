@@ -29,20 +29,20 @@
         </div>
         <form id="call-form" class="call-form">
           <label>
-            Payer name
-            <input id="payer-name" name="payer_name" autocomplete="organization" placeholder="Insurance agent">
+            Payer / plan
+            <input id="payer-name" name="payer_name" autocomplete="organization" placeholder="Example Health Plan">
           </label>
           <label>
-            Payer phone
+            Number to call
             <input id="payer-phone" name="payer_phone" autocomplete="tel" placeholder="+15555550100" required>
           </label>
           <label>
-            Twilio from
+            Caller ID
             <input id="from-number" name="from_number" autocomplete="tel" placeholder="+15555550199" required>
           </label>
           <label>
-            Initial digits
-            <input id="initial-keypad-digits" name="initial_keypad_digits" autocomplete="off" placeholder="W1234#">
+            First IVR keys
+            <input id="initial-keypad-digits" name="initial_keypad_digits" autocomplete="off" placeholder="Optional">
           </label>
           <label class="checkbox-label">
             <input id="dry-run" name="dry_run" type="checkbox">
