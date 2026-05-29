@@ -49,6 +49,8 @@ class TranscriptEntry(BaseModel):
     role: Literal["assistant", "rep", "system", "tool"]
     text: str
     timestamp: datetime = Field(default_factory=utc_now)
+    recording_id: str | None = None
+    recording_track: str | None = None
 
 
 class ClaimStatusResult(BaseModel):
@@ -70,6 +72,22 @@ class ClaimStatusResult(BaseModel):
     needs_review: bool = True
 
 
+class CallRecording(BaseModel):
+    """Local audio artifact captured from the Pipecat media pipeline."""
+
+    recording_id: str
+    track: Literal["mixed", "rep", "assistant"]
+    label: str
+    file_name: str
+    url: str
+    content_type: str = "audio/wav"
+    sample_rate: int
+    num_channels: int
+    duration_seconds: float
+    size_bytes: int
+    created_at: datetime = Field(default_factory=utc_now)
+
+
 class CallSession(BaseModel):
     session_id: str
     status: str = "created"
@@ -82,6 +100,7 @@ class CallSession(BaseModel):
     call_sid: str | None = None
     transcript: list[TranscriptEntry] = Field(default_factory=list)
     results: list[ClaimStatusResult] = Field(default_factory=list)
+    recordings: list[CallRecording] = Field(default_factory=list)
     error_message: str | None = None
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)

@@ -27,3 +27,15 @@ def session_store_path() -> Path:
 
 def dry_run_calls_enabled() -> bool:
     return env_bool("DRY_RUN_CALLS", default=False)
+
+
+def local_recordings_enabled() -> bool:
+    return env_bool("LOCAL_RECORDINGS_ENABLED", default=os.getenv("ENV", "local").lower() == "local")
+
+
+def recordings_dir() -> Path:
+    return Path(os.getenv("RECORDINGS_DIR", str(DATA_DIR / "recordings"))).expanduser()
+
+
+def recording_sample_rate() -> int:
+    return int(os.getenv("LOCAL_RECORDING_SAMPLE_RATE", "8000"))

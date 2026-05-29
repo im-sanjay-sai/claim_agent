@@ -13,6 +13,7 @@ FastAPI and Pipecat MVP for outbound payer calls. The app can load normalized cl
 - Navigates IVRs with an OpenAI tool call that emits keypad tones into the live media stream.
 - Supports optional initial post-answer digits through Twilio `send_digits`.
 - Saves transcript turns and extracts claim-status results after the call ends.
+- Saves local Pipecat-side WAV recordings for completed calls and links them from the call session.
 
 ## Local Setup
 
@@ -51,6 +52,34 @@ For UI-only testing without Twilio credentials, check `Dry run` in the web form 
 
 ```text
 DRY_RUN_CALLS=true
+```
+
+## Local Call Recordings
+
+Local Pipecat-side recording is enabled by default for `ENV=local`. During a live call, `bot.py` inserts Pipecat's `AudioBufferProcessor` after `transport.output()` and saves WAV files under:
+
+```text
+data/recordings/{session_id}/
+```
+
+Each completed call can save:
+
+- `mixed.wav` - stereo full-call recording.
+- `rep.wav` - payer or representative track.
+- `assistant.wav` - assistant track.
+
+The dashboard renders audio players in the call session. The session API also returns recording metadata, and each file is served at:
+
+```text
+/api/calls/{session_id}/recordings/{recording_id}
+```
+
+Configure recording with:
+
+```text
+LOCAL_RECORDINGS_ENABLED=true
+RECORDINGS_DIR=./data/recordings
+LOCAL_RECORDING_SAMPLE_RATE=8000
 ```
 
 Run tests:
@@ -92,6 +121,8 @@ Use the dashboard's `Initial digits` field or the API's `initial_keypad_digits` 
 - `server.py` - FastAPI web UI, API routes, Twilio webhooks.
 - `server_utils.py` - Twilio call creation and TwiML generation.
 - `bot.py` - Pipecat voice pipeline for the claim-status call.
+- `recordings.py` - local Pipecat-side audio recording orchestration.
+- `recording_files.py` - local WAV file helpers and recording paths.
 - `ivr_tools.py` - OpenAI tool schema and IVR keypad frame handling.
 - `edi_parser.py` - deterministic X12 837 parser and patient grouping helpers.
 - `claim_store.py` - parsed JSON loader and normalizer.

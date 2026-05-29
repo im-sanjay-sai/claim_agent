@@ -1,13 +1,16 @@
 from pathlib import Path
+import wave
 
 from claim_store import ClaimStore
 from claim_store import normalize_claim
 from edi_parser import parse_837_claims
 from extractor import extract_claim_status_results
 from ivr_tools import keypad_frames, normalize_initial_keypad_digits
-from models import TranscriptEntry
+from models import CallRecording, TranscriptEntry
 from pipecat.frames.frames import OutputAudioRawFrame, OutputDTMFUrgentFrame
+from recording_files import audio_duration_seconds, write_wav
 from server_utils import TwimlRequest, generate_twiml
+from session_store import SessionStore
 
 
 def test_normalize_claim_from_nested_payload():
@@ -154,3 +157,57 @@ def test_keypad_digit_validation():
         assert "Invalid keypad" in str(e)
     else:
         raise AssertionError("Expected invalid keypad character to fail")
+
+
+def test_write_wav_creates_playable_local_recording(tmp_path):
+    audio = b"\x01\x00" * 8000
+    path = tmp_path / "recording.wav"
+
+    write_wav(path, audio, sample_rate=8000, num_channels=1)
+
+    assert audio_duration_seconds(audio, sample_rate=8000, num_channels=1) == 1.0
+    with wave.open(str(path), "rb") as wav_file:
+        assert wav_file.getnchannels() == 1
+        assert wav_file.getframerate() == 8000
+        assert wav_file.getnframes() == 8000
+
+
+def test_session_store_attaches_recording_to_transcript(tmp_path):
+    claim = normalize_claim(
+        {
+            "claim_id": "CLM-REC",
+            "payer_name": "Example Health",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Sam",
+            "patient_last_name": "Lee",
+            "patient_dob": "1980-01-01",
+            "member_id": "M001",
+            "date_of_service": "2026-04-01",
+        },
+        0,
+    )
+    store = SessionStore(tmp_path / "sessions.json")
+    session = store.create(
+        payer_name="Example Health",
+        payer_phone="+15550001111",
+        from_number="+15550002222",
+        claims=[claim],
+    )
+    recording = CallRecording(
+        recording_id="mixed",
+        track="mixed",
+        label="Full call recording",
+        file_name="mixed.wav",
+        url=f"/api/calls/{session.session_id}/recordings/mixed",
+        sample_rate=8000,
+        num_channels=2,
+        duration_seconds=1.0,
+        size_bytes=32044,
+    )
+
+    saved = store.add_recording(session.session_id, recording)
+
+    assert saved.recordings[0].recording_id == "mixed"
+    assert saved.transcript[-1].recording_id == "mixed"
+    assert "Local recording saved" in saved.transcript[-1].text

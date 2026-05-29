@@ -18,12 +18,13 @@
 - Kept raw 837 parsing deterministic and local in `edi_parser.py` instead of adding an external parser dependency, so claim imports are testable and easy to adapt to payer-specific samples.
 - Isolated claim normalization, session persistence, prompt building, and transcript extraction into separate modules so later EDI/PDF ingestion can plug into `ClaimInput`.
 - Used deterministic post-call extraction for the MVP. A stricter LLM schema extractor can replace `extractor.py` without touching the call flow.
+- Added local Pipecat-side WAV recording with `AudioBufferProcessor` so calls can be reviewed without depending on Twilio-hosted recordings.
 
 ## Next Steps
 
 - Replace JSON file storage with Postgres and add a background worker for call finalization.
 - Add LLM-based structured extraction with Pydantic schema validation and confidence/evidence spans.
 - Add payer-specific playbooks for IVR paths, verification order, and claim-status questions.
-- Add call recordings or redacted audio fixtures to validate IVR paths against representative payer menus.
+- Add redacted audio fixtures and playback-based evals to validate IVR paths against representative payer menus.
 - Add Twilio signature validation, auth on the dashboard, and PHI-safe logging.
 - Build eval fixtures from representative transcripts and track extraction accuracy, call completion rate, latency, and rep escalation reasons.

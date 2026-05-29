@@ -38,6 +38,7 @@ const els = {
   claimsBody: document.querySelector("#claims-body"),
   sessionStatus: document.querySelector("#session-status"),
   sessionSummary: document.querySelector("#session-summary"),
+  recordings: document.querySelector("#recordings"),
   transcript: document.querySelector("#transcript"),
   results: document.querySelector("#results"),
   history: document.querySelector("#history"),
@@ -51,6 +52,13 @@ function money(value) {
 function shortDate(value) {
   if (!value) return "";
   return String(value).slice(0, 10);
+}
+
+function duration(value) {
+  if (!value) return "";
+  const minutes = Math.floor(Number(value) / 60);
+  const seconds = Math.round(Number(value) % 60).toString().padStart(2, "0");
+  return `${minutes}:${seconds}`;
 }
 
 function html(value) {
@@ -302,6 +310,8 @@ function clearEdiPreview() {
 
 function renderSession(session) {
   state.activeSessionId = session.session_id;
+  const recordings = session.recordings || [];
+  const recordingsById = new Map(recordings.map((recording) => [recording.recording_id, recording]));
   els.sessionStatus.textContent = session.status;
   els.sessionStatus.dataset.status = session.status;
   els.sessionSummary.innerHTML = `
@@ -310,13 +320,40 @@ function renderSession(session) {
     <div><span>Payer</span><strong>${html(session.payer_name)}</strong></div>
     <div><span>Initial digits</span><strong>${html(session.initial_keypad_digits || "")}</strong></div>
     <div><span>Claims</span><strong>${html(session.claim_ids.join(", "))}</strong></div>
+    <div><span>Recordings</span><strong>${html(recordings.length)}</strong></div>
   `;
+
+  els.recordings.innerHTML = "";
+  if (recordings.length) {
+    for (const recording of recordings) {
+      const item = document.createElement("article");
+      item.className = `recording-item ${recording.track}`;
+      item.innerHTML = `
+        <div>
+          <strong>${html(recording.label)}</strong>
+          <span>${html(recording.track)} - ${html(duration(recording.duration_seconds))} - ${html(recording.sample_rate)} Hz</span>
+        </div>
+        <audio controls preload="metadata" src="${html(recording.url)}"></audio>
+        <a class="recording-download" href="${html(recording.url)}" download="${html(recording.file_name)}">Download</a>
+      `;
+      els.recordings.appendChild(item);
+    }
+  }
 
   els.transcript.innerHTML = "";
   for (const entry of session.transcript || []) {
     const item = document.createElement("div");
     item.className = `turn ${entry.role}`;
-    item.innerHTML = `<span>${html(shortDate(entry.timestamp))} ${html(entry.role)}</span><p>${html(entry.text)}</p>`;
+    const recording = entry.recording_id ? recordingsById.get(entry.recording_id) : null;
+    item.innerHTML = `
+      <span>${html(shortDate(entry.timestamp))} ${html(entry.role)}</span>
+      <p>${html(entry.text)}</p>
+      ${
+        recording
+          ? `<audio class="transcript-audio" controls preload="metadata" src="${html(recording.url)}"></audio>`
+          : ""
+      }
+    `;
     els.transcript.appendChild(item);
   }
 

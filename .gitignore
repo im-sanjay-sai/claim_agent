@@ -22,6 +22,7 @@ env/
 
 # Runtime state
 data/sessions.json
+data/recordings/
 data/*.tmp
 tmp/
 logs/

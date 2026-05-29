@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from ivr_tools import normalize_initial_keypad_digits
 from loguru import logger
 from models import CreateCallRequest, CreateCallResponse
+from recording_files import recording_path
 from server_utils import (
     DialoutRequest,
     DialoutResponse,
@@ -228,6 +229,35 @@ async def get_call_session(session_id: str) -> dict:
     except KeyError:
         raise HTTPException(status_code=404, detail="Session not found")
     return session.model_dump(mode="json")
+
+
+@app.get("/api/calls/{session_id}/recordings/{recording_id}")
+async def get_call_recording(session_id: str, recording_id: str) -> FileResponse:
+    try:
+        session = session_store.get(session_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    recording = next(
+        (item for item in session.recordings if item.recording_id == recording_id),
+        None,
+    )
+    if not recording:
+        raise HTTPException(status_code=404, detail="Recording not found")
+
+    try:
+        path = recording_path(session_id, recording.file_name)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Recording not found")
+
+    if not path.exists() or not path.is_file():
+        raise HTTPException(status_code=404, detail="Recording file not found")
+
+    return FileResponse(
+        path,
+        media_type=recording.content_type,
+        filename=recording.file_name,
+    )
 
 
 @app.post("/api/calls", response_model=CreateCallResponse)

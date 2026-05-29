@@ -31,6 +31,7 @@ from pipecat.transports.websocket.fastapi import (
 )
 from pipecat.workers.runner import WorkerRunner
 from prompt_builder import build_claim_call_system_prompt
+from recordings import LocalCallRecorder
 from session_store import session_store
 
 load_dotenv(override=True)
@@ -43,6 +44,7 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool, session_id: str
     session = session_store.get(session_id)
     system_prompt = build_claim_call_system_prompt(session.claims, session.payer_name)
     openai_api_key = os.getenv("OPENAI_API_KEY")
+    recorder = LocalCallRecorder(session_id)
 
     llm = OpenAILLMService(
         api_key=openai_api_key,
@@ -77,17 +79,20 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool, session_id: str
         ),
     )
 
-    pipeline = Pipeline(
-        [
-            transport.input(),
-            stt,
-            user_aggregator,
-            llm,
-            tts,
-            transport.output(),
-            assistant_aggregator,
-        ]
-    )
+    pipeline_steps = [
+        transport.input(),
+        stt,
+        user_aggregator,
+        llm,
+        tts,
+        transport.output(),
+    ]
+    recording_processor = recorder.processor()
+    if recording_processor:
+        pipeline_steps.append(recording_processor)
+    pipeline_steps.append(assistant_aggregator)
+
+    pipeline = Pipeline(pipeline_steps)
 
     worker = PipelineWorker(
         pipeline,
@@ -108,11 +113,13 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool, session_id: str
             "system",
             "Twilio media stream connected; waiting for payer greeting or IVR prompt.",
         )
+        await recorder.start()
 
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
         logger.info(f"Outbound call ended for session {session_id}")
         session_store.append_transcript(session_id, "system", "Twilio media stream disconnected.")
+        await recorder.stop()
         current = session_store.get(session_id)
         results = extract_claim_status_results(current.claims, current.transcript)
         session_store.save_results(session_id, results)

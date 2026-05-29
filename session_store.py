@@ -5,7 +5,7 @@ import threading
 import uuid
 from pathlib import Path
 
-from models import CallSession, ClaimInput, ClaimStatusResult, TranscriptEntry, utc_now
+from models import CallRecording, CallSession, ClaimInput, ClaimStatusResult, TranscriptEntry, utc_now
 from settings import session_store_path
 
 
@@ -102,11 +102,43 @@ class SessionStore:
             session.error_message = error_message
         return self.save(session)
 
-    def append_transcript(self, session_id: str, role: str, text: str) -> CallSession:
+    def append_transcript(
+        self,
+        session_id: str,
+        role: str,
+        text: str,
+        recording_id: str | None = None,
+        recording_track: str | None = None,
+    ) -> CallSession:
         session = self.get(session_id)
         cleaned = text.strip()
         if cleaned:
-            session.transcript.append(TranscriptEntry(role=role, text=cleaned))
+            session.transcript.append(
+                TranscriptEntry(
+                    role=role,
+                    text=cleaned,
+                    recording_id=recording_id,
+                    recording_track=recording_track,
+                )
+            )
+        return self.save(session)
+
+    def add_recording(self, session_id: str, recording: CallRecording) -> CallSession:
+        session = self.get(session_id)
+        session.recordings = [
+            existing
+            for existing in session.recordings
+            if existing.recording_id != recording.recording_id
+        ]
+        session.recordings.append(recording)
+        session.transcript.append(
+            TranscriptEntry(
+                role="system",
+                text=f"Local recording saved: {recording.label}.",
+                recording_id=recording.recording_id,
+                recording_track=recording.track,
+            )
+        )
         return self.save(session)
 
     def save_results(self, session_id: str, results: list[ClaimStatusResult]) -> CallSession:

@@ -453,7 +453,7 @@ td span {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   border-bottom: 1px solid var(--border);
 }
 
@@ -484,6 +484,58 @@ td span {
   margin-top: 4px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.recording-list {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: #fbfcfd;
+}
+
+.recording-list:empty {
+  display: none;
+}
+
+.recording-item {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(220px, 360px) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.recording-item strong,
+.recording-item span {
+  display: block;
+}
+
+.recording-item span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.recording-item audio,
+.transcript-audio {
+  width: 100%;
+  min-width: 180px;
+  height: 34px;
+}
+
+.recording-download {
+  color: var(--accent-dark);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.recording-download:hover {
+  text-decoration: underline;
 }
 
 .two-column {
@@ -532,6 +584,10 @@ td span {
 
 .turn.tool {
   background: #fff8e8;
+}
+
+.transcript-audio {
+  margin-top: 8px;
 }
 
 .result-item {
@@ -632,6 +688,10 @@ dd {
 
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .recording-item {
+    grid-template-columns: 1fr;
   }
 
   .summary-grid div {
