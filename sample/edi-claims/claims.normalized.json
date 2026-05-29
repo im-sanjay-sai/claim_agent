@@ -1,0 +1,141 @@
+{
+  "claims": [
+    {
+      "claim_id": "1805080AV3648339",
+      "payer_name": "COMMUNITY HEALTH PLAN OF WASHINGTON",
+      "payer_phone": "+18005551212",
+      "provider_name": "BH CLINIC OF VANCOUVER",
+      "provider_npi": "1122334455",
+      "provider_tax_id": "720000000",
+      "patient_first_name": "JOHN",
+      "patient_last_name": "SUBSCRIBER",
+      "patient_dob": "1988-12-25",
+      "member_id": "987321",
+      "date_of_service": "2018-04-28",
+      "billed_amount": 20.0,
+      "service_lines": [
+        {
+          "procedure_code": "H0003",
+          "date_of_service": "2018-04-28",
+          "charged_amount": 20.0,
+          "units": 1
+        }
+      ],
+      "source": {
+        "source_file": "raw-837/databricks-chpw-claimdata.txt",
+        "source_transaction": "ST*837*000000001*005010X222A1",
+        "source_claim_segment": "CLM*1805080AV3648339*20***57:B:1*Y*A*Y*Y"
+      }
+    },
+    {
+      "claim_id": "1805080AV3648347",
+      "payer_name": "COMMUNITY HEALTH PLAN OF WASHINGTON",
+      "payer_phone": "+18005551212",
+      "provider_name": "BH CLINIC OF VANCOUVER",
+      "provider_npi": "1122334455",
+      "provider_tax_id": "720000000",
+      "patient_first_name": "SUSAN",
+      "patient_last_name": "PATIENT",
+      "patient_dob": "1988-10-31",
+      "member_id": "765123",
+      "date_of_service": "2018-04-26",
+      "billed_amount": 50.1,
+      "service_lines": [
+        {
+          "procedure_code": "96153",
+          "modifier": "HF",
+          "date_of_service": "2018-04-26",
+          "charged_amount": 50.1,
+          "units": 6
+        }
+      ],
+      "source": {
+        "source_file": "raw-837/databricks-chpw-claimdata.txt",
+        "source_transaction": "ST*837*000000002*005010X222A1",
+        "source_claim_segment": "CLM*1805080AV3648347*50.1***57:B:1*Y*A*Y*Y"
+      }
+    },
+    {
+      "claim_id": "1805080AV3648340",
+      "payer_name": "COMMUNITY HEALTH PLAN OF WASHINGTON",
+      "payer_phone": "+18005551212",
+      "provider_name": "BH CLINIC OF VANCOUVER",
+      "provider_npi": "1122334455",
+      "provider_tax_id": "720000000",
+      "patient_first_name": "JOHN",
+      "patient_last_name": "SUBSCRIBER",
+      "patient_dob": "1988-12-25",
+      "member_id": "987321",
+      "date_of_service": "2018-04-27",
+      "billed_amount": 11.64,
+      "service_lines": [
+        {
+          "procedure_code": "T1017",
+          "modifier": "HF",
+          "date_of_service": "2018-04-27",
+          "charged_amount": 11.64,
+          "units": 1
+        }
+      ],
+      "source": {
+        "source_file": "raw-837/databricks-chpw-claimdata.txt",
+        "source_transaction": "ST*837*000000003*005010X222A1",
+        "source_claim_segment": "CLM*1805080AV3648340*11.64***57:B:1*Y*A*Y*Y"
+      }
+    },
+    {
+      "claim_id": "1805080AV3648353",
+      "payer_name": "COMMUNITY HEALTH PLAN OF WASHINGTON",
+      "payer_phone": "+18005551212",
+      "provider_name": "BH CLINIC OF VANCOUVER",
+      "provider_npi": "1122334455",
+      "provider_tax_id": "720000000",
+      "patient_first_name": "SUSAN",
+      "patient_last_name": "PATIENT",
+      "patient_dob": "1988-10-31",
+      "member_id": "765123",
+      "date_of_service": "2018-04-27",
+      "billed_amount": 234.0,
+      "service_lines": [
+        {
+          "procedure_code": "90853",
+          "date_of_service": "2018-04-27",
+          "charged_amount": 234.0,
+          "units": 120
+        }
+      ],
+      "source": {
+        "source_file": "raw-837/databricks-chpw-claimdata.txt",
+        "source_transaction": "ST*837*000000004*005010X222A1",
+        "source_claim_segment": "CLM*1805080AV3648353*234***53:B:1*Y*A*Y*Y"
+      }
+    },
+    {
+      "claim_id": "1805080AV3648355",
+      "payer_name": "COMMUNITY HEALTH PLAN OF WASHINGTON",
+      "payer_phone": "+18005551212",
+      "provider_name": "BH CLINIC OF VANCOUVER",
+      "provider_npi": "1122334455",
+      "provider_tax_id": "720000000",
+      "patient_first_name": "JOHN",
+      "patient_last_name": "SUBSCRIBER",
+      "patient_dob": "1988-12-25",
+      "member_id": "987321",
+      "date_of_service": "2018-04-27",
+      "billed_amount": 20.0,
+      "service_lines": [
+        {
+          "procedure_code": "H0003",
+          "date_of_service": "2018-04-27",
+          "charged_amount": 20.0,
+          "units": 1
+        }
+      ],
+      "source": {
+        "source_file": "raw-837/databricks-chpw-claimdata.txt",
+        "source_transaction": "ST*837*000000005*005010X222A1",
+        "source_claim_segment": "CLM*1805080AV3648355*20***57:B:1*Y*A*Y*Y"
+      }
+    }
+  ]
+}

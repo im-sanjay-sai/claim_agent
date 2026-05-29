@@ -1,0 +1,70 @@
+{
+  "claims": [
+    {
+      "claim_id": "CLM-10001",
+      "payer_name": "Example Health Plan",
+      "payer_phone": "+15555550100",
+      "provider_name": "Phoenix Family Medicine",
+      "provider_npi": "1234567890",
+      "provider_tax_id": "12-3456789",
+      "patient_first_name": "Jordan",
+      "patient_last_name": "Rivera",
+      "patient_dob": "1984-03-14",
+      "member_id": "EXH12345601",
+      "date_of_service": "2026-04-02",
+      "billed_amount": 245.0,
+      "service_lines": [
+        {
+          "procedure_code": "99213",
+          "date_of_service": "2026-04-02",
+          "charged_amount": 245.0,
+          "units": 1
+        }
+      ]
+    },
+    {
+      "claim_id": "CLM-10002",
+      "payer_name": "Example Health Plan",
+      "payer_phone": "+15555550100",
+      "provider_name": "Phoenix Family Medicine",
+      "provider_npi": "1234567890",
+      "provider_tax_id": "12-3456789",
+      "patient_first_name": "Maya",
+      "patient_last_name": "Chen",
+      "patient_dob": "1979-11-08",
+      "member_id": "EXH12345602",
+      "date_of_service": "2026-04-05",
+      "billed_amount": 180.0,
+      "service_lines": [
+        {
+          "procedure_code": "87070",
+          "date_of_service": "2026-04-05",
+          "charged_amount": 180.0,
+          "units": 1
+        }
+      ]
+    },
+    {
+      "claim_id": "CLM-10003",
+      "payer_name": "Example Health Plan",
+      "payer_phone": "+15555550100",
+      "provider_name": "Phoenix Family Medicine",
+      "provider_npi": "1234567890",
+      "provider_tax_id": "12-3456789",
+      "patient_first_name": "Avery",
+      "patient_last_name": "Patel",
+      "patient_dob": "1992-07-21",
+      "member_id": "EXH12345603",
+      "date_of_service": "2026-04-09",
+      "billed_amount": 310.0,
+      "service_lines": [
+        {
+          "procedure_code": "93000",
+          "date_of_service": "2026-04-09",
+          "charged_amount": 310.0,
+          "units": 1
+        }
+      ]
+    }
+  ]
+}

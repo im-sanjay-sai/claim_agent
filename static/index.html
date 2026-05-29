@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claim Status Voice Agent</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>Claim Status Voice Agent</h1>
+        <p id="claim-count">Claims loading</p>
+      </div>
+      <button id="refresh-btn" class="secondary-btn" type="button">Refresh</button>
+    </header>
+
+    <section class="workspace">
+      <section class="panel call-panel">
+        <div class="panel-header">
+          <h2>Outbound Call</h2>
+          <span id="selected-count" class="pill">0 selected</span>
+        </div>
+        <form id="call-form" class="call-form">
+          <label>
+            Payer phone
+            <input id="payer-phone" name="payer_phone" autocomplete="tel" placeholder="+15555550100" required>
+          </label>
+          <label>
+            Twilio from
+            <input id="from-number" name="from_number" autocomplete="tel" placeholder="+15555550199" required>
+          </label>
+          <label>
+            Initial digits
+            <input id="initial-keypad-digits" name="initial_keypad_digits" autocomplete="off" placeholder="W1234#">
+          </label>
+          <label class="checkbox-label">
+            <input id="dry-run" name="dry_run" type="checkbox">
+            Dry run
+          </label>
+          <button id="start-call-btn" class="primary-btn" type="submit" disabled>Start call</button>
+        </form>
+        <div id="message" class="message" role="status"></div>
+      </section>
+
+      <section class="panel claims-panel">
+        <div class="panel-header">
+          <h2>Parsed 837 Claims</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Claim</th>
+                <th>Patient</th>
+                <th>DOS</th>
+                <th>Member</th>
+                <th>NPI</th>
+                <th>Billed</th>
+              </tr>
+            </thead>
+            <tbody id="claims-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel session-panel">
+        <div class="panel-header">
+          <h2>Call Session</h2>
+          <span id="session-status" class="status-pill">No session</span>
+        </div>
+        <div id="session-summary" class="summary-grid"></div>
+        <div class="two-column">
+          <section>
+            <h3>Transcript</h3>
+            <div id="transcript" class="scroll-pane"></div>
+          </section>
+          <section>
+            <h3>Structured Results</h3>
+            <div id="results" class="scroll-pane"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel history-panel">
+        <div class="panel-header">
+          <h2>History</h2>
+        </div>
+        <div id="history" class="history-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

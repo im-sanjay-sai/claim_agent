@@ -1,0 +1,33 @@
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local secrets and config
+.env
+.env.*
+!.env.example
+
+# Runtime state
+data/sessions.json
+data/*.tmp
+tmp/
+logs/
+*.log
+
+# Editor and OS files
+.idea/
+.vscode/
+*.swp

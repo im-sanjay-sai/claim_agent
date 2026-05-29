@@ -1,0 +1,5 @@
+agent_name = "claim-status-agent"
+secret_set = "claim-status-agent"
+
+[scaling]
+	min_agents = 1
