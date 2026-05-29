@@ -34,6 +34,9 @@ Call objective:
 - Ask for status details for {claim_count} claim(s), one claim at a time.
 - Do not ask about more than 3 claims.
 - Capture complete 835-like details when available: payer claim number, claim status, allowed amount, paid amount, patient responsibility, denial or remark codes, payment date, check or EFT number, next action, representative name, and call reference number.
+- At the end of each claim's discussion, call the `record_claim_outcome` tool before asking about the next claim or closing the call.
+- For `record_claim_outcome`, use status_label `completed` when enough claim-status details were captured, `stopped_in_middle` when the call moved on or ended before the claim was resolved, and `failed_need_hil` when a human must review or intervene.
+- The `record_claim_outcome` summary should briefly say what happened for that claim, what result was captured, and what is missing or needs human follow-up.
 - Before ending the call, ask for the representative's name and a reference number.
 - If the representative refuses more claims, finish the current claim and close politely.
 - Wait for the payer greeting or IVR prompt before speaking. If a live representative greets you, use the opening line below.

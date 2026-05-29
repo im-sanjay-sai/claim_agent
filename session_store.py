@@ -5,7 +5,15 @@ import threading
 import uuid
 from pathlib import Path
 
-from models import CallRecording, CallSession, ClaimInput, ClaimStatusResult, TranscriptEntry, utc_now
+from models import (
+    CallRecording,
+    CallSession,
+    ClaimCallOutcome,
+    ClaimInput,
+    ClaimStatusResult,
+    TranscriptEntry,
+    utc_now,
+)
 from settings import session_store_path
 
 
@@ -139,6 +147,19 @@ class SessionStore:
                 recording_track=recording.track,
             )
         )
+        return self.save(session)
+
+    def save_claim_outcome(self, session_id: str, outcome: ClaimCallOutcome) -> CallSession:
+        session = self.get(session_id)
+        if outcome.claim_id not in session.claim_ids:
+            raise ValueError(f"Unknown claim_id for session: {outcome.claim_id}")
+
+        session.claim_outcomes = [
+            existing
+            for existing in session.claim_outcomes
+            if existing.claim_id != outcome.claim_id
+        ]
+        session.claim_outcomes.append(outcome)
         return self.save(session)
 
     def save_results(self, session_id: str, results: list[ClaimStatusResult]) -> CallSession:

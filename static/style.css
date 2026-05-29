@@ -453,7 +453,7 @@ td span {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   border-bottom: 1px solid var(--border);
 }
 
@@ -629,6 +629,29 @@ dd {
   min-height: 18px;
   margin: 2px 0 0;
   overflow-wrap: anywhere;
+}
+
+.claim-outcome {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.claim-outcome strong {
+  display: block;
+  color: var(--accent-dark);
+  font-size: 12px;
+}
+
+.claim-outcome p {
+  margin: 4px 0 0;
+  color: var(--text);
+}
+
+.claim-outcome.solo {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 
 .empty {

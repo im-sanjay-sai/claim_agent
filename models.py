@@ -76,6 +76,15 @@ class ClaimStatusResult(BaseModel):
     needs_review: bool = True
 
 
+class ClaimCallOutcome(BaseModel):
+    """Agent-reported workflow outcome for a claim during the live call."""
+
+    claim_id: str
+    status_label: Literal["completed", "stopped_in_middle", "failed_need_hil"]
+    summary: str
+    recorded_at: datetime = Field(default_factory=utc_now)
+
+
 class CallRecording(BaseModel):
     """Local audio artifact captured from the Pipecat media pipeline."""
 
@@ -104,6 +113,7 @@ class CallSession(BaseModel):
     call_sid: str | None = None
     transcript: list[TranscriptEntry] = Field(default_factory=list)
     results: list[ClaimStatusResult] = Field(default_factory=list)
+    claim_outcomes: list[ClaimCallOutcome] = Field(default_factory=list)
     recordings: list[CallRecording] = Field(default_factory=list)
     error_message: str | None = None
     created_at: datetime = Field(default_factory=utc_now)

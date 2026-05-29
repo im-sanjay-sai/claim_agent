@@ -4,6 +4,7 @@ import os
 import sys
 
 from dotenv import load_dotenv
+from agent_tools import claim_outcome_tool_schema, make_record_claim_outcome_handler
 from extractor import extract_claim_status_results
 from ivr_tools import keypad_tool_schema, make_press_keypad_handler
 from loguru import logger
@@ -54,6 +55,11 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool, session_id: str
         ),
     )
     llm.register_function("press_keypad", make_press_keypad_handler(session_id), timeout_secs=10)
+    llm.register_function(
+        "record_claim_outcome",
+        make_record_claim_outcome_handler(session_id),
+        timeout_secs=10,
+    )
 
     stt = OpenAIRealtimeSTTService(
         api_key=openai_api_key,
@@ -70,7 +76,12 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool, session_id: str
         ),
     )
 
-    tools = ToolsSchema(standard_tools=[keypad_tool_schema()])
+    tools = ToolsSchema(
+        standard_tools=[
+            keypad_tool_schema(),
+            claim_outcome_tool_schema(session.claim_ids),
+        ]
+    )
     context = LLMContext(tools=tools)
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context,

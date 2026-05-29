@@ -11,6 +11,7 @@ FastAPI and Pipecat MVP for outbound payer calls. The app can load normalized cl
 - Returns TwiML from `/twiml/{session_id}` with `<Connect><Stream>`.
 - Runs a Pipecat voice bot on `/ws`.
 - Navigates IVRs with an OpenAI tool call that emits keypad tones into the live media stream.
+- Records a per-claim agent outcome tool call with `completed`, `stopped_in_middle`, or `failed_need_hil` plus a summary.
 - Supports optional initial post-answer digits through Twilio `send_digits`.
 - Saves transcript turns and extracts claim-status results after the call ends.
 - Saves local Pipecat-side WAV recordings for completed calls and links them from the call session.
@@ -114,6 +115,8 @@ The upload form supports optional payer name and payer phone overrides. Use the 
 
 The live bot exposes a `press_keypad` tool to the OpenAI LLM. When the IVR asks for a keypad selection, the tool sends Pipecat DTMF frames; on Twilio bidirectional Media Streams those are delivered as outbound audio tones because Twilio does not support outbound DTMF WebSocket events.
 
+The live bot also exposes `record_claim_outcome`. The agent should call it at the end of each claim discussion before moving to the next claim or closing the call, so the session includes an explicit workflow status and summary for every claim the agent reached.
+
 Use the dashboard's `Initial digits` field or the API's `initial_keypad_digits` value for known extensions or access codes that should be dialed immediately after the payer answers. Allowed initial characters are `0-9`, `A-D`, `*`, `#`, `w`, and `W`, with `w`/`W` as pauses.
 
 ## Important Files
@@ -121,6 +124,7 @@ Use the dashboard's `Initial digits` field or the API's `initial_keypad_digits` 
 - `server.py` - FastAPI web UI, API routes, Twilio webhooks.
 - `server_utils.py` - Twilio call creation and TwiML generation.
 - `bot.py` - Pipecat voice pipeline for the claim-status call.
+- `agent_tools.py` - OpenAI tool schema and persistence for per-claim call outcomes.
 - `recordings.py` - local Pipecat-side audio recording orchestration.
 - `recording_files.py` - local WAV file helpers and recording paths.
 - `ivr_tools.py` - OpenAI tool schema and IVR keypad frame handling.

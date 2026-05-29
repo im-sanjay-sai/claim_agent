@@ -63,6 +63,15 @@ function duration(value) {
   return `${minutes}:${seconds}`;
 }
 
+function claimOutcomeLabel(value) {
+  const labels = {
+    completed: "completed",
+    stopped_in_middle: "stopped in middle",
+    failed_need_hil: "failed - needs HIL",
+  };
+  return labels[value] || value || "";
+}
+
 function html(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -329,6 +338,8 @@ function clearEdiPreview() {
 function renderSession(session) {
   state.activeSessionId = session.session_id;
   const recordings = session.recordings || [];
+  const outcomes = session.claim_outcomes || [];
+  const outcomesByClaim = new Map(outcomes.map((outcome) => [outcome.claim_id, outcome]));
   const recordingsById = new Map(recordings.map((recording) => [recording.recording_id, recording]));
   els.sessionStatus.textContent = session.status;
   els.sessionStatus.dataset.status = session.status;
@@ -339,6 +350,7 @@ function renderSession(session) {
     <div><span>Initial digits</span><strong>${html(session.initial_keypad_digits || "")}</strong></div>
     <div><span>Claims</span><strong>${html(session.claim_ids.join(", "))}</strong></div>
     <div><span>Recordings</span><strong>${html(recordings.length)}</strong></div>
+    <div><span>Outcomes</span><strong>${html(outcomes.length)}</strong></div>
   `;
 
   els.recordings.innerHTML = "";
@@ -376,10 +388,13 @@ function renderSession(session) {
   }
 
   els.results.innerHTML = "";
-  if (!session.results?.length) {
+  const renderedOutcomeClaims = new Set();
+  if (!session.results?.length && !outcomes.length) {
     els.results.innerHTML = `<p class="empty">No structured results yet.</p>`;
   } else {
-    for (const result of session.results) {
+    for (const result of session.results || []) {
+      const outcome = outcomesByClaim.get(result.claim_id);
+      if (outcome) renderedOutcomeClaims.add(outcome.claim_id);
       const item = document.createElement("article");
       item.className = "result-item";
       item.innerHTML = `
@@ -398,6 +413,31 @@ function renderSession(session) {
           <div><dt>Rep</dt><dd>${html(result.rep_name || "")}</dd></div>
           <div><dt>Reference</dt><dd>${html(result.reference_number || "")}</dd></div>
         </dl>
+        ${
+          outcome
+            ? `<div class="claim-outcome">
+                <strong>${html(claimOutcomeLabel(outcome.status_label))}</strong>
+                <p>${html(outcome.summary)}</p>
+              </div>`
+            : ""
+        }
+      `;
+      els.results.appendChild(item);
+    }
+
+    for (const outcome of outcomes) {
+      if (renderedOutcomeClaims.has(outcome.claim_id)) continue;
+      const item = document.createElement("article");
+      item.className = "result-item";
+      item.innerHTML = `
+        <header>
+          <strong>${html(outcome.claim_id)}</strong>
+          <span>${html(claimOutcomeLabel(outcome.status_label))}</span>
+        </header>
+        <div class="claim-outcome solo">
+          <strong>${html(claimOutcomeLabel(outcome.status_label))}</strong>
+          <p>${html(outcome.summary)}</p>
+        </div>
       `;
       els.results.appendChild(item);
     }

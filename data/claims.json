@@ -16,11 +16,34 @@
       "service_lines": [
         {
           "procedure_code": "99213",
+          "modifier": null,
           "date_of_service": "2026-04-02",
           "charged_amount": 245.0,
-          "units": 1
+          "units": 1.0
         }
-      ]
+      ],
+      "source": {
+        "claim_id": "CLM-10001",
+        "payer_name": "Example Health Plan",
+        "payer_phone": "+15555550100",
+        "provider_name": "Phoenix Family Medicine",
+        "provider_npi": "1234567890",
+        "provider_tax_id": "12-3456789",
+        "patient_first_name": "Jordan",
+        "patient_last_name": "Rivera",
+        "patient_dob": "1984-03-14",
+        "member_id": "EXH12345601",
+        "date_of_service": "2026-04-02",
+        "billed_amount": 245.0,
+        "service_lines": [
+          {
+            "procedure_code": "99213",
+            "date_of_service": "2026-04-02",
+            "charged_amount": 245.0,
+            "units": 1
+          }
+        ]
+      }
     },
     {
       "claim_id": "CLM-10002",
@@ -38,11 +61,34 @@
       "service_lines": [
         {
           "procedure_code": "87070",
+          "modifier": null,
           "date_of_service": "2026-04-05",
           "charged_amount": 180.0,
-          "units": 1
+          "units": 1.0
         }
-      ]
+      ],
+      "source": {
+        "claim_id": "CLM-10002",
+        "payer_name": "Example Health Plan",
+        "payer_phone": "+15555550100",
+        "provider_name": "Phoenix Family Medicine",
+        "provider_npi": "1234567890",
+        "provider_tax_id": "12-3456789",
+        "patient_first_name": "Maya",
+        "patient_last_name": "Chen",
+        "patient_dob": "1979-11-08",
+        "member_id": "EXH12345602",
+        "date_of_service": "2026-04-05",
+        "billed_amount": 180.0,
+        "service_lines": [
+          {
+            "procedure_code": "87070",
+            "date_of_service": "2026-04-05",
+            "charged_amount": 180.0,
+            "units": 1
+          }
+        ]
+      }
     },
     {
       "claim_id": "CLM-10003",
@@ -60,11 +106,94 @@
       "service_lines": [
         {
           "procedure_code": "93000",
+          "modifier": null,
           "date_of_service": "2026-04-09",
           "charged_amount": 310.0,
-          "units": 1
+          "units": 1.0
         }
-      ]
+      ],
+      "source": {
+        "claim_id": "CLM-10003",
+        "payer_name": "Example Health Plan",
+        "payer_phone": "+15555550100",
+        "provider_name": "Phoenix Family Medicine",
+        "provider_npi": "1234567890",
+        "provider_tax_id": "12-3456789",
+        "patient_first_name": "Avery",
+        "patient_last_name": "Patel",
+        "patient_dob": "1992-07-21",
+        "member_id": "EXH12345603",
+        "date_of_service": "2026-04-09",
+        "billed_amount": 310.0,
+        "service_lines": [
+          {
+            "procedure_code": "93000",
+            "date_of_service": "2026-04-09",
+            "charged_amount": 310.0,
+            "units": 1
+          }
+        ]
+      }
+    },
+    {
+      "claim_id": "1000A",
+      "payer_name": "PAYER",
+      "payer_phone": "+14805551212",
+      "provider_name": "BILLING PROVIDER",
+      "provider_npi": "1122334455",
+      "provider_tax_id": "999999999",
+      "patient_first_name": "JOE",
+      "patient_last_name": "BLOGGS",
+      "patient_dob": "1957-01-11",
+      "member_id": "1234567890",
+      "date_of_service": "2015-11-24",
+      "billed_amount": 140.0,
+      "service_lines": [
+        {
+          "procedure_code": "99213",
+          "modifier": null,
+          "date_of_service": "2015-11-24",
+          "charged_amount": 140.0,
+          "units": 1.0,
+          "source_segment": "SV1*HC:99213*140*UN*1***1"
+        }
+      ],
+      "source": {
+        "source_file": "databricks-837p.txt",
+        "source_transaction": "ST*837*1239*005010X222A1",
+        "source_claim_segment": "CLM*1000A*140***19:B:1*Y*A*Y*Y",
+        "parser": "deterministic_837"
+      }
+    },
+    {
+      "claim_id": "1001A",
+      "payer_name": "PAYER",
+      "payer_phone": "+14805551212",
+      "provider_name": "BILLING PROVIDER",
+      "provider_npi": "1122334455",
+      "provider_tax_id": "999999999",
+      "patient_first_name": "FRED",
+      "patient_last_name": "BLOGGS",
+      "patient_dob": "1970-06-01",
+      "member_id": "9876543201",
+      "date_of_service": "2015-11-24",
+      "billed_amount": 140.0,
+      "service_lines": [
+        {
+          "procedure_code": "99213",
+          "modifier": null,
+          "date_of_service": "2015-11-24",
+          "charged_amount": 140.0,
+          "units": 1.0,
+          "source_segment": "SV1*HC:99213*140*UN*1***1"
+        }
+      ],
+      "source": {
+        "source_file": "databricks-837p.txt",
+        "source_transaction": "ST*837*1239*005010X222A1",
+        "source_claim_segment": "CLM*1001A*140***19:B:1*Y*A*Y*Y",
+        "parser": "deterministic_837"
+      }
     }
   ]
 }
