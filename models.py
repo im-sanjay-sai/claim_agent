@@ -4,7 +4,7 @@ import re
 from datetime import datetime, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 E164_PHONE_RE = re.compile(r"^\+[1-9]\d{7,14}$")
@@ -79,10 +79,42 @@ class ClaimStatusResult(BaseModel):
 class ClaimCallOutcome(BaseModel):
     """Agent-reported workflow outcome for a claim during the live call."""
 
+    model_config = ConfigDict(extra="allow")
+
     claim_id: str
-    status_label: Literal["completed", "stopped_in_middle", "failed_need_hil"]
+    submitted_claim_id: str | None = None
+    workflow_status: Literal["completed", "stopped_in_middle", "failed_need_hil"]
+    payer_status: Literal["paid", "denied", "pending", "rejected", "not_found", "received", "unknown"] = "unknown"
+    payer_claim_number: str | None = None
+    allowed_amount: float | None = None
+    paid_amount: float | None = None
+    patient_responsibility: float | None = None
+    denial_codes: list[str] = Field(default_factory=list)
+    remark_codes: list[str] = Field(default_factory=list)
+    payment_date: str | None = None
+    check_or_eft_number: str | None = None
+    rep_name: str | None = None
+    reference_number: str | None = None
+    next_action: str | None = None
     summary: str
+    missing_fields: list[str] = Field(default_factory=list)
+    hil_reason: str | None = None
     recorded_at: datetime = Field(default_factory=utc_now)
+
+    @model_validator(mode="before")
+    @classmethod
+    def migrate_legacy_fields(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+
+        migrated = dict(data)
+        if "workflow_status" not in migrated and "status_label" in migrated:
+            migrated["workflow_status"] = migrated["status_label"]
+        if "claim_id" not in migrated and "submitted_claim_id" in migrated:
+            migrated["claim_id"] = migrated["submitted_claim_id"]
+        if "submitted_claim_id" not in migrated and "claim_id" in migrated:
+            migrated["submitted_claim_id"] = migrated["claim_id"]
+        return migrated
 
 
 class CallRecording(BaseModel):
