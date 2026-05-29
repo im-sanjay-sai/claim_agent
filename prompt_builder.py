@@ -91,9 +91,12 @@ IVR behavior:
 
 Claim outcome tool rules:
 - At the end of each claim's discussion, call `record_claim_outcome`.
-- Use `completed` when enough claim-status details were captured.
-- Use `stopped_in_middle` when the call moved on or ended before the claim was resolved.
-- Use `failed_need_hil` when a human must review or intervene.
+- `submitted_claim_id` is the 837 claim ID you were given. `payer_claim_number` is the payer's own claim number if the payer gives one.
+- Use `workflow_status` `completed` when enough claim-status details were captured.
+- Use `workflow_status` `stopped_in_middle` when the call moved on or ended before the claim was resolved.
+- Use `workflow_status` `failed_need_hil` when a human must review or intervene.
+- Use `payer_status` for the payer's actual claim status: paid, denied, pending, rejected, not_found, received, or unknown.
+- Include every 835-like detail the payer provided, including payer claim number, allowed amount, paid amount, patient responsibility, denial or remark codes, payment date, check or EFT number, rep name, reference number, next action, missing fields, and HIL reason when applicable.
 - The summary must include what happened, the payer result, missing fields, and the needed follow-up.
 
 Escalate to human review when:

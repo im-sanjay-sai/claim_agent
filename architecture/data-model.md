@@ -5,6 +5,7 @@ erDiagram
   CallSession ||--o{ ClaimInput : contains
   CallSession ||--o{ TranscriptEntry : stores
   CallSession ||--o{ ClaimStatusResult : produces
+  CallSession ||--o{ ClaimCallOutcome : records
   CallSession ||--o{ CallRecording : links
   ClaimInput ||--o{ ServiceLine : has
 
@@ -30,6 +31,14 @@ erDiagram
     string status
     float allowed_amount
     float paid_amount
+    string reference_number
+  }
+
+  ClaimCallOutcome {
+    string submitted_claim_id
+    string workflow_status
+    string payer_status
+    string payer_claim_number
     string reference_number
   }
 ```

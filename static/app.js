@@ -63,13 +63,30 @@ function duration(value) {
   return `${minutes}:${seconds}`;
 }
 
-function claimOutcomeLabel(value) {
+function workflowStatusLabel(value) {
   const labels = {
     completed: "completed",
     stopped_in_middle: "stopped in middle",
     failed_need_hil: "failed - needs HIL",
   };
   return labels[value] || value || "";
+}
+
+function payerStatusLabel(value) {
+  const labels = {
+    paid: "paid",
+    denied: "denied",
+    pending: "pending",
+    rejected: "rejected",
+    not_found: "not found",
+    received: "received",
+    unknown: "unknown",
+  };
+  return labels[value] || value || "";
+}
+
+function listText(values) {
+  return (values || []).filter(Boolean).join(", ");
 }
 
 function html(value) {
@@ -89,6 +106,44 @@ function setMessage(text, kind = "") {
 function setEdiMessage(text, kind = "") {
   els.ediMessage.textContent = text;
   els.ediMessage.className = `message ${kind}`;
+}
+
+function outcomeWorkflowStatus(outcome) {
+  return outcome.workflow_status || outcome.status_label || "";
+}
+
+function outcomeRows(outcome) {
+  const fields = [
+    ["Payer status", payerStatusLabel(outcome.payer_status)],
+    ["Payer claim", outcome.payer_claim_number],
+    ["Allowed", money(outcome.allowed_amount)],
+    ["Paid", money(outcome.paid_amount)],
+    ["Patient resp.", money(outcome.patient_responsibility)],
+    ["Denials", listText(outcome.denial_codes)],
+    ["Remarks", listText(outcome.remark_codes)],
+    ["Payment date", outcome.payment_date],
+    ["Check/EFT", outcome.check_or_eft_number],
+    ["Rep", outcome.rep_name],
+    ["Reference", outcome.reference_number],
+    ["Next action", outcome.next_action],
+    ["Missing", listText(outcome.missing_fields)],
+    ["HIL reason", outcome.hil_reason],
+  ];
+  return fields
+    .filter(([, value]) => value !== null && value !== undefined && value !== "")
+    .map(([label, value]) => `<div><dt>${html(label)}</dt><dd>${html(value)}</dd></div>`)
+    .join("");
+}
+
+function outcomeBlock(outcome, className = "") {
+  const rows = outcomeRows(outcome);
+  return `
+    <div class="claim-outcome ${html(className)}">
+      <strong>${html(workflowStatusLabel(outcomeWorkflowStatus(outcome)))}</strong>
+      ${rows ? `<dl class="outcome-details">${rows}</dl>` : ""}
+      <p>${html(outcome.summary || "")}</p>
+    </div>
+  `;
 }
 
 function showTab(tabId) {
@@ -339,7 +394,9 @@ function renderSession(session) {
   state.activeSessionId = session.session_id;
   const recordings = session.recordings || [];
   const outcomes = session.claim_outcomes || [];
-  const outcomesByClaim = new Map(outcomes.map((outcome) => [outcome.claim_id, outcome]));
+  const outcomesByClaim = new Map(
+    outcomes.map((outcome) => [outcome.submitted_claim_id || outcome.claim_id, outcome])
+  );
   const recordingsById = new Map(recordings.map((recording) => [recording.recording_id, recording]));
   els.sessionStatus.textContent = session.status;
   els.sessionStatus.dataset.status = session.status;
@@ -348,7 +405,7 @@ function renderSession(session) {
     <div><span>Call SID</span><strong>${html(session.call_sid || "")}</strong></div>
     <div><span>Payer</span><strong>${html(session.payer_name)}</strong></div>
     <div><span>Initial digits</span><strong>${html(session.initial_keypad_digits || "")}</strong></div>
-    <div><span>Claims</span><strong>${html(session.claim_ids.join(", "))}</strong></div>
+    <div><span>Submitted claims</span><strong>${html(session.claim_ids.join(", "))}</strong></div>
     <div><span>Recordings</span><strong>${html(recordings.length)}</strong></div>
     <div><span>Outcomes</span><strong>${html(outcomes.length)}</strong></div>
   `;
@@ -394,15 +451,16 @@ function renderSession(session) {
   } else {
     for (const result of session.results || []) {
       const outcome = outcomesByClaim.get(result.claim_id);
-      if (outcome) renderedOutcomeClaims.add(outcome.claim_id);
+      if (outcome) renderedOutcomeClaims.add(outcome.submitted_claim_id || outcome.claim_id);
       const item = document.createElement("article");
       item.className = "result-item";
       item.innerHTML = `
         <header>
           <strong>${html(result.claim_id)}</strong>
-          <span>${html(result.status)}</span>
+          <span>${html(outcome ? workflowStatusLabel(outcomeWorkflowStatus(outcome)) : result.status)}</span>
         </header>
         <dl>
+          <div><dt>Payer status</dt><dd>${html(result.status || "")}</dd></div>
           <div><dt>Payer claim</dt><dd>${html(result.payer_claim_number || "")}</dd></div>
           <div><dt>Allowed</dt><dd>${money(result.allowed_amount)}</dd></div>
           <div><dt>Paid</dt><dd>${money(result.paid_amount)}</dd></div>
@@ -413,31 +471,22 @@ function renderSession(session) {
           <div><dt>Rep</dt><dd>${html(result.rep_name || "")}</dd></div>
           <div><dt>Reference</dt><dd>${html(result.reference_number || "")}</dd></div>
         </dl>
-        ${
-          outcome
-            ? `<div class="claim-outcome">
-                <strong>${html(claimOutcomeLabel(outcome.status_label))}</strong>
-                <p>${html(outcome.summary)}</p>
-              </div>`
-            : ""
-        }
+        ${outcome ? outcomeBlock(outcome) : ""}
       `;
       els.results.appendChild(item);
     }
 
     for (const outcome of outcomes) {
-      if (renderedOutcomeClaims.has(outcome.claim_id)) continue;
+      const submittedClaimId = outcome.submitted_claim_id || outcome.claim_id;
+      if (renderedOutcomeClaims.has(submittedClaimId)) continue;
       const item = document.createElement("article");
       item.className = "result-item";
       item.innerHTML = `
         <header>
-          <strong>${html(outcome.claim_id)}</strong>
-          <span>${html(claimOutcomeLabel(outcome.status_label))}</span>
+          <strong>${html(submittedClaimId)}</strong>
+          <span>${html(workflowStatusLabel(outcomeWorkflowStatus(outcome)))}</span>
         </header>
-        <div class="claim-outcome solo">
-          <strong>${html(claimOutcomeLabel(outcome.status_label))}</strong>
-          <p>${html(outcome.summary)}</p>
-        </div>
+        ${outcomeBlock(outcome, "solo")}
       `;
       els.results.appendChild(item);
     }

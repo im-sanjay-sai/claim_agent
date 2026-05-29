@@ -11,7 +11,7 @@ FastAPI and Pipecat MVP for outbound payer calls. The app can load normalized cl
 - Returns TwiML from `/twiml/{session_id}` with `<Connect><Stream>`.
 - Runs a Pipecat voice bot on `/ws`.
 - Navigates IVRs with an OpenAI tool call that emits keypad tones into the live media stream.
-- Records a per-claim agent outcome tool call with `completed`, `stopped_in_middle`, or `failed_need_hil` plus a summary.
+- Records a per-claim agent outcome tool call with workflow status, payer status, 835-like details, missing fields, and a summary.
 - Supports optional initial post-answer digits through Twilio `send_digits`.
 - Saves transcript turns and extracts claim-status results after the call ends.
 - Saves local Pipecat-side WAV recordings for completed calls and links them from the call session.
@@ -115,7 +115,7 @@ The upload form supports optional payer name and payer phone overrides. Use the 
 
 The live bot exposes a `press_keypad` tool to the OpenAI LLM. When the IVR asks for a keypad selection, the tool sends Pipecat DTMF frames; on Twilio bidirectional Media Streams those are delivered as outbound audio tones because Twilio does not support outbound DTMF WebSocket events.
 
-The live bot also exposes `record_claim_outcome`. The agent should call it at the end of each claim discussion before moving to the next claim or closing the call, so the session includes an explicit workflow status and summary for every claim the agent reached.
+The live bot also exposes `record_claim_outcome`. The agent should call it at the end of each claim discussion before moving to the next claim or closing the call, so the session includes an explicit workflow status, payer status, submitted claim ID, payer claim number, 835-like payment/denial fields, missing fields, and summary. If the call disconnects before the tool is called, `bot.py` creates fallback outcomes for claims missing an agent-recorded outcome.
 
 Use the dashboard's `Initial digits` field or the API's `initial_keypad_digits` value for known extensions or access codes that should be dialed immediately after the payer answers. Allowed initial characters are `0-9`, `A-D`, `*`, `#`, `w`, and `W`, with `w`/`W` as pauses.
 

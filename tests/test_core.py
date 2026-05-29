@@ -1,13 +1,13 @@
 from pathlib import Path
 import wave
 
-from agent_tools import normalize_claim_outcome_status
+from agent_tools import fallback_claim_outcome, normalize_claim_outcome_status, normalize_payer_status
 from claim_store import ClaimStore
 from claim_store import normalize_claim
 from edi_parser import parse_837_claims
 from extractor import extract_claim_status_results
 from ivr_tools import keypad_frames, normalize_initial_keypad_digits
-from models import CallRecording, ClaimCallOutcome, CreateCallRequest, TranscriptEntry
+from models import CallRecording, ClaimCallOutcome, ClaimStatusResult, CreateCallRequest, TranscriptEntry
 from pipecat.frames.frames import OutputAudioRawFrame, OutputDTMFUrgentFrame
 from recording_files import audio_duration_seconds, write_wav
 from server_utils import TwimlRequest, generate_twiml
@@ -172,11 +172,12 @@ def test_claim_outcome_status_validation():
     assert normalize_claim_outcome_status("stopped in middle") == "stopped_in_middle"
     assert normalize_claim_outcome_status("failed") == "failed_need_hil"
     assert normalize_claim_outcome_status("failed (need HIL)") == "failed_need_hil"
+    assert normalize_payer_status("no claim on file") == "not_found"
 
     try:
         normalize_claim_outcome_status("waiting")
     except ValueError as e:
-        assert "Invalid status_label" in str(e)
+        assert "Invalid workflow_status" in str(e)
     else:
         raise AssertionError("Expected invalid claim outcome status to fail")
 
@@ -282,7 +283,8 @@ def test_session_store_saves_one_claim_outcome_per_claim(tmp_path):
         session.session_id,
         ClaimCallOutcome(
             claim_id="CLM-OUTCOME",
-            status_label="stopped_in_middle",
+            workflow_status="stopped_in_middle",
+            payer_status="unknown",
             summary="The IVR looped before claim status was reached.",
         ),
     )
@@ -290,11 +292,48 @@ def test_session_store_saves_one_claim_outcome_per_claim(tmp_path):
         session.session_id,
         ClaimCallOutcome(
             claim_id="CLM-OUTCOME",
-            status_label="failed_need_hil",
+            submitted_claim_id="CLM-OUTCOME",
+            workflow_status="failed_need_hil",
+            payer_status="unknown",
             summary="The payer required portal verification that the agent could not complete.",
+            hil_reason="Portal verification was required.",
         ),
     )
 
     assert len(saved.claim_outcomes) == 1
-    assert saved.claim_outcomes[0].status_label == "failed_need_hil"
+    assert saved.claim_outcomes[0].submitted_claim_id == "CLM-OUTCOME"
+    assert saved.claim_outcomes[0].workflow_status == "failed_need_hil"
     assert "portal verification" in saved.claim_outcomes[0].summary
+
+
+def test_fallback_claim_outcome_uses_extracted_result_when_available():
+    claim = normalize_claim(
+        {
+            "claim_id": "CLM-FALLBACK",
+            "payer_name": "Example Health",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Sam",
+            "patient_last_name": "Lee",
+            "patient_dob": "1980-01-01",
+            "member_id": "M001",
+            "date_of_service": "2026-04-01",
+        },
+        0,
+    )
+    result = ClaimStatusResult(
+        claim_id="CLM-FALLBACK",
+        status="paid",
+        payer_claim_number="PAYER-123",
+        paid_amount=80,
+        reference_number="REF123",
+        needs_review=False,
+    )
+
+    outcome = fallback_claim_outcome(claim, result, has_conversation=True)
+
+    assert outcome.submitted_claim_id == "CLM-FALLBACK"
+    assert outcome.workflow_status == "completed"
+    assert outcome.payer_status == "paid"
+    assert outcome.payer_claim_number == "PAYER-123"
+    assert outcome.reference_number == "REF123"

@@ -4,7 +4,11 @@ import os
 import sys
 
 from dotenv import load_dotenv
-from agent_tools import claim_outcome_tool_schema, make_record_claim_outcome_handler
+from agent_tools import (
+    claim_outcome_tool_schema,
+    make_record_claim_outcome_handler,
+    save_missing_claim_outcomes,
+)
 from extractor import extract_claim_status_results
 from ivr_tools import keypad_tool_schema, make_press_keypad_handler
 from loguru import logger
@@ -133,6 +137,7 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool, session_id: str
         await recorder.stop()
         current = session_store.get(session_id)
         results = extract_claim_status_results(current.claims, current.transcript)
+        save_missing_claim_outcomes(session_id, results)
         session_store.save_results(session_id, results)
         await worker.cancel()
 
