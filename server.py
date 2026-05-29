@@ -55,6 +55,17 @@ async def list_claims() -> dict:
     return {"claims": [claim.model_dump(mode="json") for claim in claims]}
 
 
+@app.get("/api/config")
+async def get_client_config() -> dict:
+    return {
+        "default_call": {
+            "payer_name": os.getenv("DEFAULT_CALL_PAYER_NAME", ""),
+            "payer_phone": os.getenv("DEFAULT_CALL_PAYER_PHONE", ""),
+            "from_number": os.getenv("DEFAULT_CALL_FROM_NUMBER", ""),
+        }
+    }
+
+
 def _edi_parse_response(
     *,
     parsed,

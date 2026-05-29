@@ -4,6 +4,7 @@ const state = {
   activeSessionId: null,
   ediSource: null,
   ediSamples: [],
+  config: null,
   pollTimer: null,
 };
 
@@ -30,6 +31,7 @@ const els = {
   ediPreview: document.querySelector("#edi-preview"),
   ediJson: document.querySelector("#edi-json"),
   ediRaw: document.querySelector("#edi-raw"),
+  payerName: document.querySelector("#payer-name"),
   payerPhone: document.querySelector("#payer-phone"),
   fromNumber: document.querySelector("#from-number"),
   initialKeypadDigits: document.querySelector("#initial-keypad-digits"),
@@ -171,6 +173,9 @@ function ediOverrideFormData() {
 
 function syncCallForm() {
   const selected = selectedClaims();
+  if (!els.payerName.value && selected[0]?.payer_name) {
+    els.payerName.value = selected[0].payer_name;
+  }
   if (!els.payerPhone.value && selected[0]?.payer_phone) {
     els.payerPhone.value = selected[0].payer_phone;
   }
@@ -182,6 +187,19 @@ function syncCallForm() {
     checkbox.checked = checked;
     checkbox.disabled = !checked && state.selected.size >= 3;
   });
+}
+
+function applyCallDefaults() {
+  const defaults = state.config?.default_call || {};
+  if (!els.payerName.value && defaults.payer_name) {
+    els.payerName.value = defaults.payer_name;
+  }
+  if (!els.payerPhone.value && defaults.payer_phone) {
+    els.payerPhone.value = defaults.payer_phone;
+  }
+  if (!els.fromNumber.value && defaults.from_number) {
+    els.fromNumber.value = defaults.from_number;
+  }
 }
 
 function renderClaims() {
@@ -408,6 +426,11 @@ async function loadClaims() {
   renderClaims();
 }
 
+async function loadConfig() {
+  state.config = await api("/api/config");
+  applyCallDefaults();
+}
+
 async function loadSessions() {
   const data = await api("/api/calls");
   renderHistory(data.sessions || []);
@@ -478,6 +501,7 @@ function startPolling(sessionId) {
 async function startCall(event) {
   event.preventDefault();
   const payload = {
+    payer_name: els.payerName.value.trim() || null,
     payer_phone: els.payerPhone.value.trim(),
     from_number: els.fromNumber.value.trim(),
     initial_keypad_digits: els.initialKeypadDigits.value.trim() || null,
@@ -567,6 +591,7 @@ async function saveEdiExtraction() {
 async function refreshAll() {
   setMessage("");
   setEdiMessage("");
+  await loadConfig();
   await loadEdiSamples();
   await loadClaims();
   await loadSessions();
