@@ -25,6 +25,7 @@ from server_utils import (
 )
 from session_store import session_store
 from settings import SAMPLE_EDI_DIR, STATIC_DIR, dry_run_calls_enabled
+from starlette.websockets import WebSocketDisconnect, WebSocketState
 
 load_dotenv(override=True)
 
@@ -431,9 +432,15 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         runner_args = WebSocketRunnerArguments(websocket=websocket)
         await bot(runner_args)
+    except WebSocketDisconnect:
+        logger.info("Telephony WebSocket disconnected before startup completed.")
     except Exception as e:
+        if "closed before receiving telephony handshake" in str(e):
+            logger.info(f"Telephony WebSocket closed before startup completed: {e}")
+            return
         logger.error(f"Error in WebSocket endpoint: {e}")
-        await websocket.close()
+        if websocket.client_state != WebSocketState.DISCONNECTED:
+            await websocket.close()
 
 
 if __name__ == "__main__":

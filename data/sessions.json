@@ -1,0 +1,858 @@
+{
+  "sessions": {
+    "3d10d95a48dc4595bb43040768a8b93b": {
+      "session_id": "3d10d95a48dc4595bb43040768a8b93b",
+      "status": "twiml_requested",
+      "payer_name": "Example Health Plan",
+      "payer_phone": "+17167309413",
+      "from_number": "+16506145449",
+      "initial_keypad_digits": null,
+      "claim_ids": [
+        "CLM-10001"
+      ],
+      "claims": [
+        {
+          "claim_id": "CLM-10001",
+          "payer_name": "Example Health Plan",
+          "payer_phone": "+15555550100",
+          "provider_name": "Phoenix Family Medicine",
+          "provider_npi": "1234567890",
+          "provider_tax_id": "12-3456789",
+          "patient_first_name": "Jordan",
+          "patient_last_name": "Rivera",
+          "patient_dob": "1984-03-14",
+          "member_id": "EXH12345601",
+          "date_of_service": "2026-04-02",
+          "billed_amount": 245.0,
+          "service_lines": [
+            {
+              "procedure_code": "99213",
+              "modifier": null,
+              "date_of_service": "2026-04-02",
+              "charged_amount": 245.0,
+              "units": 1.0
+            }
+          ],
+          "source": {
+            "claim_id": "CLM-10001",
+            "payer_name": "Example Health Plan",
+            "payer_phone": "+15555550100",
+            "provider_name": "Phoenix Family Medicine",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Jordan",
+            "patient_last_name": "Rivera",
+            "patient_dob": "1984-03-14",
+            "member_id": "EXH12345601",
+            "date_of_service": "2026-04-02",
+            "billed_amount": 245.0,
+            "service_lines": [
+              {
+                "procedure_code": "99213",
+                "modifier": null,
+                "date_of_service": "2026-04-02",
+                "charged_amount": 245.0,
+                "units": 1.0
+              }
+            ],
+            "source": {
+              "claim_id": "CLM-10001",
+              "payer_name": "Example Health Plan",
+              "payer_phone": "+15555550100",
+              "provider_name": "Phoenix Family Medicine",
+              "provider_npi": "1234567890",
+              "provider_tax_id": "12-3456789",
+              "patient_first_name": "Jordan",
+              "patient_last_name": "Rivera",
+              "patient_dob": "1984-03-14",
+              "member_id": "EXH12345601",
+              "date_of_service": "2026-04-02",
+              "billed_amount": 245.0,
+              "service_lines": [
+                {
+                  "procedure_code": "99213",
+                  "date_of_service": "2026-04-02",
+                  "charged_amount": 245.0,
+                  "units": 1
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "call_sid": null,
+      "transcript": [],
+      "results": [],
+      "claim_outcomes": [],
+      "recordings": [],
+      "error_message": null,
+      "created_at": "2026-05-29T21:42:48.461854Z",
+      "updated_at": "2026-05-29T21:42:52.974873Z"
+    },
+    "597244b5490747568bf3b6dd737f0a53": {
+      "session_id": "597244b5490747568bf3b6dd737f0a53",
+      "status": "twilio_completed",
+      "payer_name": "Insurance Agent Test",
+      "payer_phone": "+17167309413",
+      "from_number": "+16506145449",
+      "initial_keypad_digits": null,
+      "claim_ids": [
+        "CLM-10001"
+      ],
+      "claims": [
+        {
+          "claim_id": "CLM-10001",
+          "payer_name": "Example Health Plan",
+          "payer_phone": "+15555550100",
+          "provider_name": "Phoenix Family Medicine",
+          "provider_npi": "1234567890",
+          "provider_tax_id": "12-3456789",
+          "patient_first_name": "Jordan",
+          "patient_last_name": "Rivera",
+          "patient_dob": "1984-03-14",
+          "member_id": "EXH12345601",
+          "date_of_service": "2026-04-02",
+          "billed_amount": 245.0,
+          "service_lines": [
+            {
+              "procedure_code": "99213",
+              "modifier": null,
+              "date_of_service": "2026-04-02",
+              "charged_amount": 245.0,
+              "units": 1.0
+            }
+          ],
+          "source": {
+            "claim_id": "CLM-10001",
+            "payer_name": "Example Health Plan",
+            "payer_phone": "+15555550100",
+            "provider_name": "Phoenix Family Medicine",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Jordan",
+            "patient_last_name": "Rivera",
+            "patient_dob": "1984-03-14",
+            "member_id": "EXH12345601",
+            "date_of_service": "2026-04-02",
+            "billed_amount": 245.0,
+            "service_lines": [
+              {
+                "procedure_code": "99213",
+                "modifier": null,
+                "date_of_service": "2026-04-02",
+                "charged_amount": 245.0,
+                "units": 1.0
+              }
+            ],
+            "source": {
+              "claim_id": "CLM-10001",
+              "payer_name": "Example Health Plan",
+              "payer_phone": "+15555550100",
+              "provider_name": "Phoenix Family Medicine",
+              "provider_npi": "1234567890",
+              "provider_tax_id": "12-3456789",
+              "patient_first_name": "Jordan",
+              "patient_last_name": "Rivera",
+              "patient_dob": "1984-03-14",
+              "member_id": "EXH12345601",
+              "date_of_service": "2026-04-02",
+              "billed_amount": 245.0,
+              "service_lines": [
+                {
+                  "procedure_code": "99213",
+                  "date_of_service": "2026-04-02",
+                  "charged_amount": 245.0,
+                  "units": 1
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "call_sid": "CA0a27ec15f25ad76e179259df16a8ad77",
+      "transcript": [
+        {
+          "role": "system",
+          "text": "Twilio media stream stream-started.",
+          "timestamp": "2026-05-29T22:23:22.297227Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "system",
+          "text": "Twilio media stream stream-error. Stream - WebSocket - Handshake Error",
+          "timestamp": "2026-05-29T22:23:22.468321Z",
+          "recording_id": null,
+          "recording_track": null
+        }
+      ],
+      "results": [],
+      "claim_outcomes": [],
+      "recordings": [],
+      "error_message": "Stream - WebSocket - Handshake Error",
+      "created_at": "2026-05-29T22:23:03.038024Z",
+      "updated_at": "2026-05-29T22:27:25.649311Z"
+    },
+    "40cadc7902574c3d84e14debe9abd941": {
+      "session_id": "40cadc7902574c3d84e14debe9abd941",
+      "status": "twilio_completed",
+      "payer_name": "Insurance Agent Test",
+      "payer_phone": "+17167309413",
+      "from_number": "+16506145449",
+      "initial_keypad_digits": null,
+      "claim_ids": [
+        "CLM-10002"
+      ],
+      "claims": [
+        {
+          "claim_id": "CLM-10002",
+          "payer_name": "Example Health Plan",
+          "payer_phone": "+15555550100",
+          "provider_name": "Phoenix Family Medicine",
+          "provider_npi": "1234567890",
+          "provider_tax_id": "12-3456789",
+          "patient_first_name": "Maya",
+          "patient_last_name": "Chen",
+          "patient_dob": "1979-11-08",
+          "member_id": "EXH12345602",
+          "date_of_service": "2026-04-05",
+          "billed_amount": 180.0,
+          "service_lines": [
+            {
+              "procedure_code": "87070",
+              "modifier": null,
+              "date_of_service": "2026-04-05",
+              "charged_amount": 180.0,
+              "units": 1.0
+            }
+          ],
+          "source": {
+            "claim_id": "CLM-10002",
+            "payer_name": "Example Health Plan",
+            "payer_phone": "+15555550100",
+            "provider_name": "Phoenix Family Medicine",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Maya",
+            "patient_last_name": "Chen",
+            "patient_dob": "1979-11-08",
+            "member_id": "EXH12345602",
+            "date_of_service": "2026-04-05",
+            "billed_amount": 180.0,
+            "service_lines": [
+              {
+                "procedure_code": "87070",
+                "modifier": null,
+                "date_of_service": "2026-04-05",
+                "charged_amount": 180.0,
+                "units": 1.0
+              }
+            ],
+            "source": {
+              "claim_id": "CLM-10002",
+              "payer_name": "Example Health Plan",
+              "payer_phone": "+15555550100",
+              "provider_name": "Phoenix Family Medicine",
+              "provider_npi": "1234567890",
+              "provider_tax_id": "12-3456789",
+              "patient_first_name": "Maya",
+              "patient_last_name": "Chen",
+              "patient_dob": "1979-11-08",
+              "member_id": "EXH12345602",
+              "date_of_service": "2026-04-05",
+              "billed_amount": 180.0,
+              "service_lines": [
+                {
+                  "procedure_code": "87070",
+                  "date_of_service": "2026-04-05",
+                  "charged_amount": 180.0,
+                  "units": 1
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "call_sid": "CAa391696aab8b9316a1c93174236e1b82",
+      "transcript": [],
+      "results": [],
+      "claim_outcomes": [],
+      "recordings": [],
+      "error_message": null,
+      "created_at": "2026-05-29T22:38:29.044885Z",
+      "updated_at": "2026-05-29T22:38:48.355060Z"
+    },
+    "421583b28629459d815b146c3badd3bd": {
+      "session_id": "421583b28629459d815b146c3badd3bd",
+      "status": "completed",
+      "payer_name": "Insurance Agent Test",
+      "payer_phone": "+17167309413",
+      "from_number": "+16506145449",
+      "initial_keypad_digits": null,
+      "claim_ids": [
+        "CLM-10003"
+      ],
+      "claims": [
+        {
+          "claim_id": "CLM-10003",
+          "payer_name": "Example Health Plan",
+          "payer_phone": "+15555550100",
+          "provider_name": "Phoenix Family Medicine",
+          "provider_npi": "1234567890",
+          "provider_tax_id": "12-3456789",
+          "patient_first_name": "Avery",
+          "patient_last_name": "Patel",
+          "patient_dob": "1992-07-21",
+          "member_id": "EXH12345603",
+          "date_of_service": "2026-04-09",
+          "billed_amount": 310.0,
+          "service_lines": [
+            {
+              "procedure_code": "93000",
+              "modifier": null,
+              "date_of_service": "2026-04-09",
+              "charged_amount": 310.0,
+              "units": 1.0
+            }
+          ],
+          "source": {
+            "claim_id": "CLM-10003",
+            "payer_name": "Example Health Plan",
+            "payer_phone": "+15555550100",
+            "provider_name": "Phoenix Family Medicine",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Avery",
+            "patient_last_name": "Patel",
+            "patient_dob": "1992-07-21",
+            "member_id": "EXH12345603",
+            "date_of_service": "2026-04-09",
+            "billed_amount": 310.0,
+            "service_lines": [
+              {
+                "procedure_code": "93000",
+                "modifier": null,
+                "date_of_service": "2026-04-09",
+                "charged_amount": 310.0,
+                "units": 1.0
+              }
+            ],
+            "source": {
+              "claim_id": "CLM-10003",
+              "payer_name": "Example Health Plan",
+              "payer_phone": "+15555550100",
+              "provider_name": "Phoenix Family Medicine",
+              "provider_npi": "1234567890",
+              "provider_tax_id": "12-3456789",
+              "patient_first_name": "Avery",
+              "patient_last_name": "Patel",
+              "patient_dob": "1992-07-21",
+              "member_id": "EXH12345603",
+              "date_of_service": "2026-04-09",
+              "billed_amount": 310.0,
+              "service_lines": [
+                {
+                  "procedure_code": "93000",
+                  "date_of_service": "2026-04-09",
+                  "charged_amount": 310.0,
+                  "units": 1
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "call_sid": "CA76eb379af06b38f471689295d81bc783",
+      "transcript": [
+        {
+          "role": "system",
+          "text": "Twilio media stream stream-started.",
+          "timestamp": "2026-05-29T22:39:51.513689Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "system",
+          "text": "Twilio media stream connected; waiting for payer greeting or IVR prompt.",
+          "timestamp": "2026-05-29T22:39:51.765235Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "system",
+          "text": "Local Pipecat recording started.",
+          "timestamp": "2026-05-29T22:39:51.765856Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "Hi can you hear me?",
+          "timestamp": "2026-05-29T22:40:00.441681Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "Hello, this is an automated assistant calling on behalf of the provider billing office to check claim status. Can you help me with claim status for a few claims today?",
+          "timestamp": "2026-05-29T22:40:10.431006Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "Sure, I can help you with that.",
+          "timestamp": "2026-05-29T22:40:15.096381Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "Thank you. I have one claim to check today from Phoenix Family Medicine for patient Avery Patel with a date of service April ninth, 2026. May I provide you the provider NPI to locate this claim?",
+          "timestamp": "2026-05-29T22:40:26.910582Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "Sure You can.",
+          "timestamp": "2026-05-29T22:40:31.132041Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "tool",
+          "text": "Pressed keypad 1234567890 for enter provider NPI.",
+          "timestamp": "2026-05-29T22:40:33.062167Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "The provider NPI is one two three four five six seven eight nine zero. Can you please check the claim status for this date of service?",
+          "timestamp": "2026-05-29T22:40:40.114142Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "yeah I guess it's September twenty two thousand",
+          "timestamp": "2026-05-29T22:40:53.600392Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "Just to confirm, the claim date of service is April ninth, 2026. Could you please provide the claim status for that?",
+          "timestamp": "2026-05-29T22:41:01.206069Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "Uh the current status is Not approved.",
+          "timestamp": "2026-05-29T22:41:10.942472Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "Thank you. Could you please share if the claim has a payer claim number or a reason given for not being approved?",
+          "timestamp": "2026-05-29T22:41:16.808988Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "No, I don't want to share that.",
+          "timestamp": "2026-05-29T22:41:21.497771Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "Understood. Without the reason or payer claim number, I cannot capture full details. Is there any next action needed from the provider?",
+          "timestamp": "2026-05-29T22:41:28.800601Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "Yeah, you can go for another",
+          "timestamp": "2026-05-29T22:41:34.420367Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "tool",
+          "text": "Recorded claim outcome for submitted claim CLM-10003: completed, payer status denied. Summary: Claim for Avery Patel with date of service April ninth, 2026, is denied with status Not approved. Payer claim number and denial reason were not provided. No next action details available.",
+          "timestamp": "2026-05-29T22:41:36.971767Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "We have completed checking that claim. Do you have another claim to check, or shall we end the call?",
+          "timestamp": "2026-05-29T22:41:42.571337Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "Uh you can check for another crime",
+          "timestamp": "2026-05-29T22:41:49.662815Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "I only have one claim in my list for today. Could you please confirm if you want to end the call now?",
+          "timestamp": "2026-05-29T22:41:54.899005Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "Ah, yes",
+          "timestamp": "2026-05-29T22:42:00.578763Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "Thank you for your help today. May I have your name and a reference number for this call before I end the call?",
+          "timestamp": "2026-05-29T22:42:06.221217Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "rep",
+          "text": "Sure, my name is Sai And resonance number is RF 5050",
+          "timestamp": "2026-05-29T22:42:14.678177Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "tool",
+          "text": "Recorded claim outcome for submitted claim CLM-10003: completed, payer status denied. Summary: Call ended after claim status check. Representative Sai provided reference number RF 5050.",
+          "timestamp": "2026-05-29T22:42:16.509581Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "assistant",
+          "text": "Thanks, Sai. Have a great day. Goodbye.",
+          "timestamp": "2026-05-29T22:42:19.612298Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "system",
+          "text": "Twilio media stream stream-stopped.",
+          "timestamp": "2026-05-29T22:42:23.810122Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "system",
+          "text": "Twilio media stream disconnected.",
+          "timestamp": "2026-05-29T22:42:24.713322Z",
+          "recording_id": null,
+          "recording_track": null
+        },
+        {
+          "role": "system",
+          "text": "Local recording saved: Full call recording.",
+          "timestamp": "2026-05-29T22:42:24.744299Z",
+          "recording_id": "mixed",
+          "recording_track": "mixed"
+        },
+        {
+          "role": "system",
+          "text": "Local recording saved: Payer or representative track.",
+          "timestamp": "2026-05-29T22:42:24.750995Z",
+          "recording_id": "rep",
+          "recording_track": "rep"
+        },
+        {
+          "role": "system",
+          "text": "Local recording saved: Assistant track.",
+          "timestamp": "2026-05-29T22:42:24.756167Z",
+          "recording_id": "assistant",
+          "recording_track": "assistant"
+        }
+      ],
+      "results": [
+        {
+          "claim_id": "CLM-10003",
+          "status": "denied",
+          "payer_claim_number": "status",
+          "allowed_amount": null,
+          "paid_amount": null,
+          "patient_responsibility": null,
+          "denial_codes": [
+            "CONFIRM",
+            "COULD",
+            "CRIME",
+            "PIPECAT",
+            "PRESSED",
+            "PROMPT",
+            "PROVIDE"
+          ],
+          "payment_date": null,
+          "check_or_eft_number": "claim",
+          "rep_name": "an automated",
+          "reference_number": "number",
+          "notes": "Recorded claim outcome for submitted claim CLM-10003: completed, payer status denied. Summary: Claim for Avery Patel with date of service April ninth, 2026, is denied with status Not approved. Payer claim number and denial reason were not provided. No next action details available.\nassistant: We have completed checking that claim. Do you have another claim to check, or shall we end the call?\nrep: Uh you can check for another crime\nassistant: I only have one claim in my list for today. Could you please confirm if you want to end the call now?\nrep: Ah, yes\nassistant: Thank you for your help today. May I have your name and a reference number for this call before I end the call?\nrep: Sure, my na",
+          "confidence": 0.7,
+          "needs_review": false
+        }
+      ],
+      "claim_outcomes": [
+        {
+          "claim_id": "CLM-10003",
+          "submitted_claim_id": "CLM-10003",
+          "workflow_status": "completed",
+          "payer_status": "denied",
+          "payer_claim_number": null,
+          "allowed_amount": null,
+          "paid_amount": null,
+          "patient_responsibility": null,
+          "denial_codes": [],
+          "remark_codes": [],
+          "payment_date": null,
+          "check_or_eft_number": null,
+          "rep_name": "Sai",
+          "reference_number": "RF 5050",
+          "next_action": null,
+          "summary": "Call ended after claim status check. Representative Sai provided reference number RF 5050.",
+          "missing_fields": [],
+          "hil_reason": null,
+          "recorded_at": "2026-05-29T22:42:16.503712Z"
+        }
+      ],
+      "recordings": [
+        {
+          "recording_id": "mixed",
+          "track": "mixed",
+          "label": "Full call recording",
+          "file_name": "mixed.wav",
+          "url": "/api/calls/421583b28629459d815b146c3badd3bd/recordings/mixed",
+          "content_type": "audio/wav",
+          "sample_rate": 8000,
+          "num_channels": 2,
+          "duration_seconds": 153.823,
+          "size_bytes": 4922388,
+          "created_at": "2026-05-29T22:42:24.743861Z"
+        },
+        {
+          "recording_id": "rep",
+          "track": "rep",
+          "label": "Payer or representative track",
+          "file_name": "rep.wav",
+          "url": "/api/calls/421583b28629459d815b146c3badd3bd/recordings/rep",
+          "content_type": "audio/wav",
+          "sample_rate": 8000,
+          "num_channels": 1,
+          "duration_seconds": 153.823,
+          "size_bytes": 2461216,
+          "created_at": "2026-05-29T22:42:24.750530Z"
+        },
+        {
+          "recording_id": "assistant",
+          "track": "assistant",
+          "label": "Assistant track",
+          "file_name": "assistant.wav",
+          "url": "/api/calls/421583b28629459d815b146c3badd3bd/recordings/assistant",
+          "content_type": "audio/wav",
+          "sample_rate": 8000,
+          "num_channels": 1,
+          "duration_seconds": 153.823,
+          "size_bytes": 2461216,
+          "created_at": "2026-05-29T22:42:24.755506Z"
+        }
+      ],
+      "error_message": null,
+      "created_at": "2026-05-29T22:39:41.836138Z",
+      "updated_at": "2026-05-29T22:42:24.756171Z"
+    },
+    "b7d6ed1d97904b029194e3a4f4362f8e": {
+      "session_id": "b7d6ed1d97904b029194e3a4f4362f8e",
+      "status": "failed",
+      "payer_name": "Insurance Agent Test",
+      "payer_phone": "+13032571139",
+      "from_number": "+16506145449",
+      "initial_keypad_digits": null,
+      "claim_ids": [
+        "CLM-10003"
+      ],
+      "claims": [
+        {
+          "claim_id": "CLM-10003",
+          "payer_name": "Example Health Plan",
+          "payer_phone": "+15555550100",
+          "provider_name": "Phoenix Family Medicine",
+          "provider_npi": "1234567890",
+          "provider_tax_id": "12-3456789",
+          "patient_first_name": "Avery",
+          "patient_last_name": "Patel",
+          "patient_dob": "1992-07-21",
+          "member_id": "EXH12345603",
+          "date_of_service": "2026-04-09",
+          "billed_amount": 310.0,
+          "service_lines": [
+            {
+              "procedure_code": "93000",
+              "modifier": null,
+              "date_of_service": "2026-04-09",
+              "charged_amount": 310.0,
+              "units": 1.0
+            }
+          ],
+          "source": {
+            "claim_id": "CLM-10003",
+            "payer_name": "Example Health Plan",
+            "payer_phone": "+15555550100",
+            "provider_name": "Phoenix Family Medicine",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Avery",
+            "patient_last_name": "Patel",
+            "patient_dob": "1992-07-21",
+            "member_id": "EXH12345603",
+            "date_of_service": "2026-04-09",
+            "billed_amount": 310.0,
+            "service_lines": [
+              {
+                "procedure_code": "93000",
+                "modifier": null,
+                "date_of_service": "2026-04-09",
+                "charged_amount": 310.0,
+                "units": 1.0
+              }
+            ],
+            "source": {
+              "claim_id": "CLM-10003",
+              "payer_name": "Example Health Plan",
+              "payer_phone": "+15555550100",
+              "provider_name": "Phoenix Family Medicine",
+              "provider_npi": "1234567890",
+              "provider_tax_id": "12-3456789",
+              "patient_first_name": "Avery",
+              "patient_last_name": "Patel",
+              "patient_dob": "1992-07-21",
+              "member_id": "EXH12345603",
+              "date_of_service": "2026-04-09",
+              "billed_amount": 310.0,
+              "service_lines": [
+                {
+                  "procedure_code": "93000",
+                  "date_of_service": "2026-04-09",
+                  "charged_amount": 310.0,
+                  "units": 1
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "call_sid": null,
+      "transcript": [],
+      "results": [],
+      "claim_outcomes": [],
+      "recordings": [],
+      "error_message": "HTTP 400 error: Unable to create record: The number +13032571139 is unverified. Trial accounts may only make calls to verified numbers.",
+      "created_at": "2026-05-29T23:04:02.379599Z",
+      "updated_at": "2026-05-29T23:04:02.680692Z"
+    },
+    "ecce26c5d4284c4fa91f7c7378dc3cc2": {
+      "session_id": "ecce26c5d4284c4fa91f7c7378dc3cc2",
+      "status": "failed",
+      "payer_name": "Insurance Agent Test",
+      "payer_phone": "+13032571139",
+      "from_number": "+16506145449",
+      "initial_keypad_digits": null,
+      "claim_ids": [
+        "CLM-10003"
+      ],
+      "claims": [
+        {
+          "claim_id": "CLM-10003",
+          "payer_name": "Example Health Plan",
+          "payer_phone": "+15555550100",
+          "provider_name": "Phoenix Family Medicine",
+          "provider_npi": "1234567890",
+          "provider_tax_id": "12-3456789",
+          "patient_first_name": "Avery",
+          "patient_last_name": "Patel",
+          "patient_dob": "1992-07-21",
+          "member_id": "EXH12345603",
+          "date_of_service": "2026-04-09",
+          "billed_amount": 310.0,
+          "service_lines": [
+            {
+              "procedure_code": "93000",
+              "modifier": null,
+              "date_of_service": "2026-04-09",
+              "charged_amount": 310.0,
+              "units": 1.0
+            }
+          ],
+          "source": {
+            "claim_id": "CLM-10003",
+            "payer_name": "Example Health Plan",
+            "payer_phone": "+15555550100",
+            "provider_name": "Phoenix Family Medicine",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Avery",
+            "patient_last_name": "Patel",
+            "patient_dob": "1992-07-21",
+            "member_id": "EXH12345603",
+            "date_of_service": "2026-04-09",
+            "billed_amount": 310.0,
+            "service_lines": [
+              {
+                "procedure_code": "93000",
+                "modifier": null,
+                "date_of_service": "2026-04-09",
+                "charged_amount": 310.0,
+                "units": 1.0
+              }
+            ],
+            "source": {
+              "claim_id": "CLM-10003",
+              "payer_name": "Example Health Plan",
+              "payer_phone": "+15555550100",
+              "provider_name": "Phoenix Family Medicine",
+              "provider_npi": "1234567890",
+              "provider_tax_id": "12-3456789",
+              "patient_first_name": "Avery",
+              "patient_last_name": "Patel",
+              "patient_dob": "1992-07-21",
+              "member_id": "EXH12345603",
+              "date_of_service": "2026-04-09",
+              "billed_amount": 310.0,
+              "service_lines": [
+                {
+                  "procedure_code": "93000",
+                  "date_of_service": "2026-04-09",
+                  "charged_amount": 310.0,
+                  "units": 1
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "call_sid": null,
+      "transcript": [],
+      "results": [],
+      "claim_outcomes": [],
+      "recordings": [],
+      "error_message": "HTTP 400 error: Unable to create record: The number +13032571139 is unverified. Trial accounts may only make calls to verified numbers.",
+      "created_at": "2026-05-29T23:04:10.125687Z",
+      "updated_at": "2026-05-29T23:04:10.350443Z"
+    }
+  }
+}
