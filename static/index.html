@@ -16,7 +16,12 @@
       <button id="refresh-btn" class="secondary-btn" type="button">Refresh</button>
     </header>
 
-    <section class="workspace">
+    <nav class="app-tabs" aria-label="Application views">
+      <button class="tab-btn active" type="button" data-tab-target="claims-view">Claims & Calls</button>
+      <button class="tab-btn" type="button" data-tab-target="edi-view">EDI Extraction</button>
+    </nav>
+
+    <section id="claims-view" class="workspace tab-panel active">
       <section class="panel call-panel">
         <div class="panel-header">
           <h2>Outbound Call</h2>
@@ -89,6 +94,62 @@
           <h2>History</h2>
         </div>
         <div id="history" class="history-list"></div>
+      </section>
+    </section>
+
+    <section id="edi-view" class="tab-panel edi-workspace">
+      <section class="panel edi-controls-panel">
+        <div class="panel-header">
+          <h2>EDI Extraction</h2>
+          <span id="edi-source-pill" class="pill">No file loaded</span>
+        </div>
+        <form id="edi-import-form" class="import-form">
+          <label>
+            Sample raw 837
+            <select id="edi-sample-select" name="sample"></select>
+          </label>
+          <div class="button-row">
+            <button id="edi-load-sample-btn" class="secondary-btn" type="button">Load sample</button>
+            <button id="edi-save-btn" class="primary-btn" type="button" disabled>Save extracted claims</button>
+          </div>
+          <label>
+            Raw 837 EDI file
+            <input id="edi-file" name="file" type="file" accept=".edi,.txt,.x12">
+          </label>
+          <label>
+            Payer phone override
+            <input id="edi-payer-phone" name="payer_phone" autocomplete="tel" placeholder="+18005551212">
+          </label>
+          <label>
+            Payer name override
+            <input id="edi-payer-name" name="payer_name" autocomplete="organization" placeholder="Health plan name">
+          </label>
+          <button id="edi-import-btn" class="secondary-btn" type="submit">Parse upload</button>
+        </form>
+        <div id="edi-message" class="message" role="status"></div>
+      </section>
+
+      <section class="panel edi-extracted-panel">
+        <div class="panel-header">
+          <h2>Extracted Claims</h2>
+          <span id="edi-extracted-count" class="pill">0 parsed</span>
+        </div>
+        <div id="edi-preview" class="import-preview"></div>
+      </section>
+
+      <section class="panel edi-json-panel">
+        <div class="panel-header">
+          <h2>Normalized JSON</h2>
+        </div>
+        <pre id="edi-json" class="edi-code-pane"></pre>
+      </section>
+
+      <section class="panel edi-raw-panel">
+        <div class="panel-header">
+          <h2>Raw EDI</h2>
+          <span id="edi-segment-count" class="pill">0 segments</span>
+        </div>
+        <pre id="edi-raw" class="edi-code-pane"></pre>
       </section>
     </section>
   </main>

@@ -2,15 +2,34 @@ const state = {
   claims: [],
   selected: new Set(),
   activeSessionId: null,
+  ediSource: null,
+  ediSamples: [],
   pollTimer: null,
 };
 
 const els = {
+  tabBtns: document.querySelectorAll("[data-tab-target]"),
+  tabPanels: document.querySelectorAll(".tab-panel"),
   claimCount: document.querySelector("#claim-count"),
   selectedCount: document.querySelector("#selected-count"),
   refreshBtn: document.querySelector("#refresh-btn"),
   callForm: document.querySelector("#call-form"),
   startCallBtn: document.querySelector("#start-call-btn"),
+  ediImportForm: document.querySelector("#edi-import-form"),
+  ediSampleSelect: document.querySelector("#edi-sample-select"),
+  ediLoadSampleBtn: document.querySelector("#edi-load-sample-btn"),
+  ediSaveBtn: document.querySelector("#edi-save-btn"),
+  ediSourcePill: document.querySelector("#edi-source-pill"),
+  ediExtractedCount: document.querySelector("#edi-extracted-count"),
+  ediSegmentCount: document.querySelector("#edi-segment-count"),
+  ediFile: document.querySelector("#edi-file"),
+  ediPayerPhone: document.querySelector("#edi-payer-phone"),
+  ediPayerName: document.querySelector("#edi-payer-name"),
+  ediImportBtn: document.querySelector("#edi-import-btn"),
+  ediMessage: document.querySelector("#edi-message"),
+  ediPreview: document.querySelector("#edi-preview"),
+  ediJson: document.querySelector("#edi-json"),
+  ediRaw: document.querySelector("#edi-raw"),
   payerPhone: document.querySelector("#payer-phone"),
   fromNumber: document.querySelector("#from-number"),
   initialKeypadDigits: document.querySelector("#initial-keypad-digits"),
@@ -48,6 +67,20 @@ function setMessage(text, kind = "") {
   els.message.className = `message ${kind}`;
 }
 
+function setEdiMessage(text, kind = "") {
+  els.ediMessage.textContent = text;
+  els.ediMessage.className = `message ${kind}`;
+}
+
+function showTab(tabId) {
+  els.tabPanels.forEach((panel) => {
+    panel.classList.toggle("active", panel.id === tabId);
+  });
+  els.tabBtns.forEach((button) => {
+    button.classList.toggle("active", button.dataset.tabTarget === tabId);
+  });
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
@@ -60,8 +93,72 @@ async function api(path, options = {}) {
   return data;
 }
 
+async function apiForm(path, formData) {
+  const response = await fetch(path, {
+    method: "POST",
+    body: formData,
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || `Request failed: ${response.status}`);
+  }
+  return data;
+}
+
 function selectedClaims() {
   return state.claims.filter((claim) => state.selected.has(claim.claim_id));
+}
+
+function claimPatientKey(claim) {
+  return [
+    claim.member_id || "",
+    claim.patient_dob || "",
+    String(claim.patient_last_name || "").toUpperCase(),
+    String(claim.patient_first_name || "").toUpperCase(),
+  ].join("|");
+}
+
+function groupedClaims(claims) {
+  const groups = [];
+  const byKey = new Map();
+  for (const claim of claims) {
+    const key = claimPatientKey(claim);
+    if (!byKey.has(key)) {
+      const group = {
+        key,
+        patientName: `${claim.patient_first_name || ""} ${claim.patient_last_name || ""}`.trim() || "Unknown patient",
+        patientDob: claim.patient_dob || "",
+        memberId: claim.member_id || "",
+        claims: [],
+      };
+      byKey.set(key, group);
+      groups.push(group);
+    }
+    byKey.get(key).claims.push(claim);
+  }
+  return groups;
+}
+
+function ediOverrideParams() {
+  const params = new URLSearchParams();
+  if (els.ediPayerPhone.value.trim()) {
+    params.set("payer_phone", els.ediPayerPhone.value.trim());
+  }
+  if (els.ediPayerName.value.trim()) {
+    params.set("payer_name", els.ediPayerName.value.trim());
+  }
+  return params;
+}
+
+function ediOverrideFormData() {
+  const formData = new FormData();
+  if (els.ediPayerPhone.value.trim()) {
+    formData.append("payer_phone", els.ediPayerPhone.value.trim());
+  }
+  if (els.ediPayerName.value.trim()) {
+    formData.append("payer_name", els.ediPayerName.value.trim());
+  }
+  return formData;
 }
 
 function syncCallForm() {
@@ -81,18 +178,30 @@ function syncCallForm() {
 
 function renderClaims() {
   els.claimsBody.innerHTML = "";
-  for (const claim of state.claims) {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td><input data-claim-checkbox type="checkbox" value="${html(claim.claim_id)}" aria-label="Select ${html(claim.claim_id)}"></td>
-      <td><strong>${html(claim.claim_id)}</strong><span>${html(claim.payer_name || "")}</span></td>
-      <td>${html(claim.patient_first_name)} ${html(claim.patient_last_name)}</td>
-      <td>${html(claim.date_of_service || "")}</td>
-      <td>${html(claim.member_id || "")}</td>
-      <td>${html(claim.provider_npi || "")}</td>
-      <td>${money(claim.billed_amount)}</td>
+  for (const group of groupedClaims(state.claims)) {
+    const groupRow = document.createElement("tr");
+    groupRow.className = "claim-group-row";
+    groupRow.innerHTML = `
+      <td colspan="7">
+        <strong>${html(group.patientName)}</strong>
+        <span>${html(group.claims.length)} claim${group.claims.length === 1 ? "" : "s"} - DOB ${html(group.patientDob || "")} - Member ${html(group.memberId || "")}</span>
+      </td>
     `;
-    els.claimsBody.appendChild(row);
+    els.claimsBody.appendChild(groupRow);
+
+    for (const claim of group.claims) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><input data-claim-checkbox type="checkbox" value="${html(claim.claim_id)}" aria-label="Select ${html(claim.claim_id)}"></td>
+        <td><strong>${html(claim.claim_id)}</strong><span>${html(claim.payer_name || "")}</span></td>
+        <td>${html(claim.patient_first_name)} ${html(claim.patient_last_name)}</td>
+        <td>${html(claim.date_of_service || "")}</td>
+        <td>${html(claim.member_id || "")}</td>
+        <td>${html(claim.provider_npi || "")}</td>
+        <td>${money(claim.billed_amount)}</td>
+      `;
+      els.claimsBody.appendChild(row);
+    }
   }
 
   document.querySelectorAll("[data-claim-checkbox]").forEach((checkbox) => {
@@ -112,6 +221,83 @@ function renderClaims() {
     });
   });
   syncCallForm();
+}
+
+function renderImportPreview(data) {
+  const people = data.people || [];
+  const claims = data.claims || [];
+  const warnings = data.warnings || [];
+  const sourceLabel = data.file_name || "Uploaded EDI";
+
+  els.ediSourcePill.textContent = sourceLabel;
+  els.ediExtractedCount.textContent = `${claims.length} parsed`;
+  els.ediSegmentCount.textContent = `${data.segment_count || 0} segments`;
+  els.ediRaw.textContent = data.raw_text || "";
+  els.ediJson.textContent = JSON.stringify(
+    {
+      file_name: data.file_name,
+      parsed_count: data.parsed_count,
+      people,
+      claims,
+      warnings,
+    },
+    null,
+    2
+  );
+  els.ediSaveBtn.disabled = claims.length === 0;
+
+  if (!people.length) {
+    els.ediPreview.innerHTML = `<p class="empty">No claims extracted yet.</p>`;
+    return;
+  }
+
+  els.ediPreview.innerHTML = `
+    <div class="import-summary">
+      <strong>${html(data.parsed_count)} parsed</strong>
+      <span>${html(data.segment_count || 0)} EDI segments</span>
+    </div>
+  `;
+
+  if (warnings.length) {
+    const warning = document.createElement("div");
+    warning.className = "import-warning";
+    warning.textContent = warnings.join(" ");
+    els.ediPreview.appendChild(warning);
+  }
+
+  for (const person of people) {
+    const item = document.createElement("section");
+    item.className = "import-person";
+    const claimRows = (person.claims || [])
+      .map(
+        (claim) => `
+          <li>
+            <strong>${html(claim.claim_id)}</strong>
+            <span>${html(claim.date_of_service || "")} - ${money(claim.billed_amount)} - ${html(claim.payer_name || "")}</span>
+          </li>
+        `
+      )
+      .join("");
+    item.innerHTML = `
+      <header>
+        <strong>${html(person.patient_name || "Unknown patient")}</strong>
+        <span>DOB ${html(person.patient_dob || "")} - Member ${html(person.member_id || "")}</span>
+      </header>
+      <ul>${claimRows}</ul>
+    `;
+    els.ediPreview.appendChild(item);
+  }
+}
+
+function clearEdiPreview() {
+  state.ediSource = null;
+  els.ediSourcePill.textContent = "No file loaded";
+  els.ediExtractedCount.textContent = "0 parsed";
+  els.ediSegmentCount.textContent = "0 segments";
+  els.ediPreview.innerHTML = `<p class="empty">Load a sample or parse an upload.</p>`;
+  els.ediJson.textContent = "";
+  els.ediRaw.textContent = "";
+  els.ediSaveBtn.disabled = true;
 }
 
 function renderSession(session) {
@@ -198,6 +384,52 @@ async function loadSession(sessionId) {
   renderSession(session);
 }
 
+async function loadEdiSamples() {
+  const data = await api("/api/edi/samples");
+  state.ediSamples = data.samples || [];
+  els.ediSampleSelect.innerHTML = "";
+
+  if (!state.ediSamples.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No samples found";
+    els.ediSampleSelect.appendChild(option);
+    els.ediLoadSampleBtn.disabled = true;
+    return;
+  }
+
+  for (const sample of state.ediSamples) {
+    const option = document.createElement("option");
+    option.value = sample.file_name;
+    option.textContent = `${sample.file_name} (${sample.size_bytes} bytes)`;
+    els.ediSampleSelect.appendChild(option);
+  }
+  els.ediLoadSampleBtn.disabled = false;
+}
+
+async function loadSelectedEdiSample() {
+  const fileName = els.ediSampleSelect.value;
+  if (!fileName) {
+    setEdiMessage("Choose a sample EDI file.", "error");
+    return;
+  }
+
+  const params = ediOverrideParams();
+  const suffix = params.toString() ? `?${params.toString()}` : "";
+  els.ediLoadSampleBtn.disabled = true;
+  setEdiMessage("Loading sample EDI...");
+  try {
+    const response = await api(`/api/edi/samples/${encodeURIComponent(fileName)}${suffix}`);
+    state.ediSource = { type: "sample", fileName };
+    renderImportPreview(response);
+    setEdiMessage(`Loaded ${response.parsed_count} claims from ${fileName}.`, "ok");
+  } catch (error) {
+    setEdiMessage(error.message, "error");
+  } finally {
+    els.ediLoadSampleBtn.disabled = false;
+  }
+}
+
 function startPolling(sessionId) {
   clearInterval(state.pollTimer);
   state.pollTimer = setInterval(() => {
@@ -234,13 +466,85 @@ async function startCall(event) {
   }
 }
 
-async function refreshAll() {
-  setMessage("");
-  await loadClaims();
-  await loadSessions();
+async function importEdi(event) {
+  event.preventDefault();
+  const file = els.ediFile.files?.[0];
+  if (!file) {
+    setEdiMessage("Choose a raw 837 EDI file.", "error");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  for (const [key, value] of ediOverrideFormData().entries()) {
+    formData.append(key, value);
+  }
+
+  els.ediImportBtn.disabled = true;
+  setEdiMessage("Parsing EDI...");
+  try {
+    const response = await apiForm("/api/edi/parse", formData);
+    state.ediSource = { type: "upload", file };
+    renderImportPreview(response);
+    setEdiMessage(`Parsed ${response.parsed_count} claims from ${file.name}.`, "ok");
+  } catch (error) {
+    setEdiMessage(error.message, "error");
+  } finally {
+    els.ediImportBtn.disabled = false;
+  }
 }
 
+async function saveEdiExtraction() {
+  if (!state.ediSource) {
+    setEdiMessage("Load or parse an EDI file first.", "error");
+    return;
+  }
+
+  const formData = ediOverrideFormData();
+  let path = "";
+  if (state.ediSource.type === "sample") {
+    path = `/api/edi/samples/${encodeURIComponent(state.ediSource.fileName)}/import`;
+  } else {
+    formData.append("file", state.ediSource.file);
+    path = "/api/claims/import-edi";
+  }
+
+  els.ediSaveBtn.disabled = true;
+  setEdiMessage("Saving extracted claims...");
+  try {
+    const response = await apiForm(path, formData);
+    renderImportPreview(response);
+    setEdiMessage(
+      `Saved ${response.parsed_count} claims: ${response.created} new, ${response.updated} updated.`,
+      "ok"
+    );
+    await loadClaims();
+    showTab("claims-view");
+  } catch (error) {
+    setEdiMessage(error.message, "error");
+  } finally {
+    els.ediSaveBtn.disabled = false;
+  }
+}
+
+async function refreshAll() {
+  setMessage("");
+  setEdiMessage("");
+  await loadEdiSamples();
+  await loadClaims();
+  await loadSessions();
+  if (!state.ediSource) {
+    clearEdiPreview();
+  }
+}
+
+els.tabBtns.forEach((button) => {
+  button.addEventListener("click", () => showTab(button.dataset.tabTarget));
+});
 els.callForm.addEventListener("submit", startCall);
+els.ediImportForm.addEventListener("submit", importEdi);
+els.ediLoadSampleBtn.addEventListener("click", loadSelectedEdiSample);
+els.ediSaveBtn.addEventListener("click", saveEdiExtraction);
 els.refreshBtn.addEventListener("click", () => refreshAll().catch((error) => setMessage(error.message, "error")));
 
 refreshAll().catch((error) => setMessage(error.message, "error"));

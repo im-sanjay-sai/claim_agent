@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import uvicorn
 from claim_store import ClaimStore, ClaimStoreError
 from dotenv import load_dotenv
+from edi_parser import EdiParseError, parse_837_claims, person_groups_to_json
 from extractor import extract_claim_status_results
-from fastapi import FastAPI, HTTPException, Request, WebSocket
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile, WebSocket
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from ivr_tools import normalize_initial_keypad_digits
@@ -21,7 +23,7 @@ from server_utils import (
     parse_twiml_request,
 )
 from session_store import session_store
-from settings import STATIC_DIR, dry_run_calls_enabled
+from settings import SAMPLE_EDI_DIR, STATIC_DIR, dry_run_calls_enabled
 
 load_dotenv(override=True)
 
@@ -29,6 +31,8 @@ load_dotenv(override=True)
 app = FastAPI(title="Claim Status Voice Agent")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 claim_store = ClaimStore()
+MAX_EDI_UPLOAD_BYTES = 5 * 1024 * 1024
+EDI_SAMPLE_EXTENSIONS = {".edi", ".txt", ".x12"}
 
 
 @app.get("/")
@@ -48,6 +52,167 @@ async def list_claims() -> dict:
     except ClaimStoreError as e:
         raise HTTPException(status_code=500, detail=str(e))
     return {"claims": [claim.model_dump(mode="json") for claim in claims]}
+
+
+def _edi_parse_response(
+    *,
+    parsed,
+    file_name: str | None,
+    raw_text: str,
+    save_summary: dict[str, int] | None = None,
+) -> dict:
+    response = {
+        "file_name": file_name,
+        "segment_count": raw_text.count("~"),
+        "raw_text": raw_text,
+        "parsed_count": len(parsed.claims),
+        "people": person_groups_to_json(parsed.people),
+        "claims": [claim.model_dump(mode="json") for claim in parsed.claims],
+        "warnings": parsed.warnings,
+        "saved": save_summary is not None,
+    }
+    if save_summary:
+        response.update(
+            {
+                "created": save_summary["created"],
+                "updated": save_summary["updated"],
+                "total_claims": save_summary["total"],
+            }
+        )
+    return response
+
+
+async def _read_edi_upload(file: UploadFile) -> str:
+    contents = await file.read()
+    if len(contents) > MAX_EDI_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="EDI file must be 5 MB or smaller.")
+
+    try:
+        return contents.decode("utf-8")
+    except UnicodeDecodeError:
+        return contents.decode("latin-1")
+
+
+def _sample_path(file_name: str) -> Path:
+    candidate = (SAMPLE_EDI_DIR / file_name).resolve()
+    sample_dir = SAMPLE_EDI_DIR.resolve()
+    if sample_dir not in candidate.parents or candidate.suffix.lower() not in EDI_SAMPLE_EXTENSIONS:
+        raise HTTPException(status_code=404, detail="Sample EDI file not found")
+    if not candidate.exists() or not candidate.is_file():
+        raise HTTPException(status_code=404, detail="Sample EDI file not found")
+    return candidate
+
+
+@app.get("/api/edi/samples")
+async def list_edi_samples() -> dict:
+    if not SAMPLE_EDI_DIR.exists():
+        return {"samples": []}
+
+    samples = [
+        {
+            "file_name": path.name,
+            "size_bytes": path.stat().st_size,
+        }
+        for path in sorted(SAMPLE_EDI_DIR.iterdir())
+        if path.is_file() and path.suffix.lower() in EDI_SAMPLE_EXTENSIONS
+    ]
+    return {"samples": samples}
+
+
+@app.get("/api/edi/samples/{file_name}")
+async def get_edi_sample(file_name: str, payer_name: str | None = None, payer_phone: str | None = None) -> dict:
+    path = _sample_path(file_name)
+    raw_text = path.read_text(encoding="utf-8")
+    try:
+        parsed = parse_837_claims(
+            raw_text,
+            source_file=path.name,
+            payer_name=payer_name.strip() if payer_name else None,
+            payer_phone=payer_phone.strip() if payer_phone else None,
+        )
+    except EdiParseError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return _edi_parse_response(parsed=parsed, file_name=path.name, raw_text=raw_text)
+
+
+@app.post("/api/edi/samples/{file_name}/import")
+async def import_edi_sample(file_name: str, payer_name: str | None = Form(None), payer_phone: str | None = Form(None)) -> dict:
+    path = _sample_path(file_name)
+    raw_text = path.read_text(encoding="utf-8")
+    try:
+        parsed = parse_837_claims(
+            raw_text,
+            source_file=path.name,
+            payer_name=payer_name.strip() if payer_name else None,
+            payer_phone=payer_phone.strip() if payer_phone else None,
+        )
+        save_summary = claim_store.upsert_claims(parsed.claims)
+    except EdiParseError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except ClaimStoreError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return _edi_parse_response(
+        parsed=parsed,
+        file_name=path.name,
+        raw_text=raw_text,
+        save_summary=save_summary,
+    )
+
+
+@app.post("/api/edi/parse")
+async def preview_edi_claims(
+    file: UploadFile = File(...),
+    payer_name: str | None = Form(None),
+    payer_phone: str | None = Form(None),
+) -> dict:
+    text = await _read_edi_upload(file)
+    cleaned_payer_name = payer_name.strip() if payer_name else None
+    cleaned_payer_phone = payer_phone.strip() if payer_phone else None
+
+    try:
+        parsed = parse_837_claims(
+            text,
+            source_file=file.filename,
+            payer_name=cleaned_payer_name or None,
+            payer_phone=cleaned_payer_phone or None,
+        )
+    except EdiParseError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return _edi_parse_response(parsed=parsed, file_name=file.filename, raw_text=text)
+
+
+@app.post("/api/claims/import-edi")
+async def import_edi_claims(
+    file: UploadFile = File(...),
+    payer_name: str | None = Form(None),
+    payer_phone: str | None = Form(None),
+) -> dict:
+    text = await _read_edi_upload(file)
+    cleaned_payer_name = payer_name.strip() if payer_name else None
+    cleaned_payer_phone = payer_phone.strip() if payer_phone else None
+
+    try:
+        parsed = parse_837_claims(
+            text,
+            source_file=file.filename,
+            payer_name=cleaned_payer_name or None,
+            payer_phone=cleaned_payer_phone or None,
+        )
+        save_summary = claim_store.upsert_claims(parsed.claims)
+    except EdiParseError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except ClaimStoreError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return _edi_parse_response(
+        parsed=parsed,
+        file_name=file.filename,
+        raw_text=text,
+        save_summary=save_summary,
+    )
 
 
 @app.get("/api/calls")

@@ -1,4 +1,8 @@
+from pathlib import Path
+
+from claim_store import ClaimStore
 from claim_store import normalize_claim
+from edi_parser import parse_837_claims
 from extractor import extract_claim_status_results
 from ivr_tools import keypad_frames, normalize_initial_keypad_digits
 from models import TranscriptEntry
@@ -28,6 +32,62 @@ def test_normalize_claim_from_nested_payload():
     assert claim.provider_npi == "1234567890"
     assert claim.member_id == "M001"
     assert claim.date_of_service == "2026-04-01"
+
+
+def test_parse_raw_837_claims_grouped_by_patient():
+    text = Path("sample/edi-claims/raw-837/databricks-chpw-claimdata.txt").read_text()
+
+    result = parse_837_claims(text, source_file="databricks-chpw-claimdata.txt")
+
+    assert len(result.claims) == 5
+    assert len(result.people) == 2
+    assert [(group.patient_name, len(group.claims)) for group in result.people] == [
+        ("JOHN SUBSCRIBER", 3),
+        ("SUSAN PATIENT", 2),
+    ]
+    first = result.claims[0]
+    assert first.claim_id == "1805080AV3648339"
+    assert first.payer_name == "COMMUNITY HEALTH PLAN OF WASHINGTON"
+    assert first.payer_phone == "+18005551212"
+    assert first.provider_npi == "1122334455"
+    assert first.provider_tax_id == "720000000"
+    assert first.date_of_service == "2018-04-28"
+    assert first.service_lines[0].procedure_code == "H0003"
+
+
+def test_parse_837_without_interchange_envelope():
+    text = Path("sample/edi-claims/raw-837/databricks-837p.txt").read_text()
+    snippet = text[text.index("ST*837") : text.index("SE*41*1239~") + len("SE*41*1239~")]
+
+    result = parse_837_claims(snippet, source_file="snippet.edi")
+
+    assert [claim.claim_id for claim in result.claims] == ["1000A", "1001A"]
+
+
+def test_claim_store_upserts_claims(tmp_path):
+    store = ClaimStore(tmp_path / "claims.json")
+    claim = normalize_claim(
+        {
+            "claim_id": "CLM-UPSERT",
+            "payer_name": "Original Health",
+            "provider_npi": "1234567890",
+            "provider_tax_id": "12-3456789",
+            "patient_first_name": "Sam",
+            "patient_last_name": "Lee",
+            "patient_dob": "1980-01-01",
+            "member_id": "M001",
+            "date_of_service": "2026-04-01",
+        },
+        0,
+    )
+
+    created = store.upsert_claims([claim])
+    updated_claim = claim.model_copy(update={"payer_name": "Updated Health"})
+    updated = store.upsert_claims([updated_claim])
+
+    assert created == {"created": 1, "updated": 0, "total": 1}
+    assert updated == {"created": 0, "updated": 1, "total": 1}
+    assert store.list_claims()[0].payer_name == "Updated Health"
 
 
 def test_extract_claim_status_result():

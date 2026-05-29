@@ -7,6 +7,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 STATIC_DIR = BASE_DIR / "static"
+SAMPLE_EDI_DIR = BASE_DIR / "sample" / "edi-claims" / "raw-837"
 
 
 def env_bool(name: str, default: bool = False) -> bool:
@@ -26,4 +27,3 @@ def session_store_path() -> Path:
 
 def dry_run_calls_enabled() -> bool:
     return env_bool("DRY_RUN_CALLS", default=False)
-

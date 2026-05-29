@@ -2,7 +2,7 @@
 
 ## Scoping Assumptions
 
-- A parsed 837-style JSON file already exists; PDF or raw EDI parsing is out of scope for this MVP.
+- Parsed 837-style JSON can still be loaded directly, and raw 837 EDI files can now be imported through a deterministic parser. PDF parsing remains out of scope for this MVP.
 - The MVP targets outbound calls to human reps and IVRs. Dynamic keypad automation is included for common payer menus.
 - One call can include up to 3 claims because that is the assignment limit and matches payer rep tolerance.
 - Local JSON session storage is acceptable for the take-home; production would use a database and queue.
@@ -15,6 +15,7 @@
 - Added an OpenAI `press_keypad` tool backed by Pipecat DTMF frames. Twilio bidirectional Media Streams do not accept outbound DTMF events, so the frame path emits keypad audio into the live stream.
 - Added optional Twilio `send_digits` for known initial extensions or access codes immediately after answer.
 - Used a no-build FastAPI static dashboard instead of React to keep the project mostly Python and quick to run locally.
+- Kept raw 837 parsing deterministic and local in `edi_parser.py` instead of adding an external parser dependency, so claim imports are testable and easy to adapt to payer-specific samples.
 - Isolated claim normalization, session persistence, prompt building, and transcript extraction into separate modules so later EDI/PDF ingestion can plug into `ClaimInput`.
 - Used deterministic post-call extraction for the MVP. A stricter LLM schema extractor can replace `extractor.py` without touching the call flow.
 

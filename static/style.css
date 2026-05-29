@@ -29,7 +29,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -90,6 +91,38 @@ h3 {
   color: var(--muted);
 }
 
+.app-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+  min-height: 40px;
+  border-color: transparent;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  color: var(--muted);
+  background: transparent;
+}
+
+.tab-btn:hover,
+.tab-btn.active {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+  border-bottom-color: var(--surface);
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: grid;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(280px, 380px) minmax(520px, 1fr);
@@ -125,7 +158,8 @@ h3 {
   grid-column: 2;
 }
 
-.call-form {
+.call-form,
+.import-form {
   display: grid;
   gap: 12px;
   padding: 14px;
@@ -141,7 +175,9 @@ label {
 
 input[type="text"],
 input[type="tel"],
-input:not([type]) {
+input[type="file"],
+input:not([type]),
+select {
   width: 100%;
   min-height: 38px;
   border: 1px solid var(--border);
@@ -154,6 +190,17 @@ input:not([type]) {
 input:focus {
   outline: 2px solid rgba(15, 123, 95, 0.24);
   border-color: var(--accent);
+}
+
+select:focus {
+  outline: 2px solid rgba(15, 123, 95, 0.24);
+  border-color: var(--accent);
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .checkbox-label {
@@ -223,6 +270,126 @@ input:focus {
   color: var(--ok);
 }
 
+.import-preview {
+  display: grid;
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+
+.import-preview:empty {
+  display: none;
+}
+
+.import-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fbfcfd;
+}
+
+.import-summary span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.import-warning {
+  padding: 10px 11px;
+  border: 1px solid #f2c97d;
+  border-radius: 6px;
+  color: var(--warn);
+  background: #fff8e8;
+  font-size: 12px;
+}
+
+.import-person {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.import-person header {
+  display: grid;
+  gap: 2px;
+  padding: 9px 11px;
+  border-bottom: 1px solid var(--border);
+  background: #fbfcfd;
+}
+
+.import-person header span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.import-person ul {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.import-person li {
+  display: grid;
+  gap: 2px;
+  padding: 9px 11px;
+  border-bottom: 1px solid var(--border);
+}
+
+.import-person li:last-child {
+  border-bottom: 0;
+}
+
+.import-person li span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.edi-workspace {
+  grid-template-columns: minmax(280px, 380px) minmax(520px, 1fr);
+  grid-auto-rows: min-content;
+  gap: 16px;
+}
+
+.edi-controls-panel {
+  grid-column: 1;
+  grid-row: span 2;
+}
+
+.edi-extracted-panel,
+.edi-json-panel,
+.edi-raw-panel {
+  grid-column: 2;
+}
+
+.edi-json-panel,
+.edi-raw-panel {
+  min-height: 260px;
+}
+
+.edi-code-pane {
+  height: 280px;
+  margin: 0;
+  overflow: auto;
+  padding: 12px;
+  border: 0;
+  color: #1d2723;
+  background: #fbfcfd;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.tab-panel:not(.active) {
+  display: none;
+}
+
 .table-wrap {
   width: 100%;
   overflow-x: auto;
@@ -246,6 +413,21 @@ th {
   background: #fbfcfd;
   font-size: 12px;
   font-weight: 700;
+}
+
+.claim-group-row td {
+  padding: 9px 12px;
+  background: #eef1f4;
+}
+
+.claim-group-row strong,
+.claim-group-row span {
+  display: inline;
+}
+
+.claim-group-row span {
+  margin-left: 8px;
+  color: var(--muted);
 }
 
 td:first-child,
@@ -436,8 +618,16 @@ dd {
   .call-panel,
   .claims-panel,
   .session-panel,
-  .history-panel {
+  .history-panel,
+  .edi-controls-panel,
+  .edi-extracted-panel,
+  .edi-json-panel,
+  .edi-raw-panel {
     grid-column: 1;
+  }
+
+  .edi-workspace {
+    grid-template-columns: 1fr;
   }
 
   .summary-grid {
@@ -474,6 +664,10 @@ dd {
 
   .summary-grid,
   dl {
+    grid-template-columns: 1fr;
+  }
+
+  .button-row {
     grid-template-columns: 1fr;
   }
 }
