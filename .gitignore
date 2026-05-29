@@ -21,8 +21,6 @@ env/
 !.env.example
 
 # Runtime state
-data/sessions.json
-data/recordings/
 data/*.tmp
 tmp/
 logs/
