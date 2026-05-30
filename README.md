@@ -5,9 +5,9 @@ FastAPI and Pipecat MVP for outbound payer calls. The app can load normalized cl
 The WebUI supports selecting parsed claims and reviewing live call/session output.
 The screenshots below show the claims list and status/result panels used for the MVP.
 
-![WebUI claims list](claims.png)
+![WebUI claims list](docs/assets/claims.png)
 
-![WebUI status results](status.png)
+![WebUI status results](docs/assets/status.png)
 
 ## What It Does
 
@@ -27,7 +27,7 @@ The screenshots below show the claims list and status/result panels used for the
 
 ```bash
 cd claim-status-agent
-cp env.example .env
+cp .env.example .env
 uv sync
 uv run server.py
 ```
@@ -64,7 +64,7 @@ DRY_RUN_CALLS=true
 
 ## Local Call Recordings
 
-Local Pipecat-side recording is enabled by default for `ENV=local`. During a live call, `bot.py` inserts Pipecat's `AudioBufferProcessor` after `transport.output()` and saves WAV files under:
+Local Pipecat-side recording is enabled by default for `ENV=local`. During a live call, `claim_status_agent/voice/bot.py` inserts Pipecat's `AudioBufferProcessor` after `transport.output()` and saves WAV files under:
 
 ```text
 data/recordings/{session_id}/
@@ -110,11 +110,11 @@ Override it with:
 CLAIMS_JSON_PATH=/absolute/path/to/parsed_837.json
 ```
 
-The loader accepts either a list of claims or an object with a `claims` array. It normalizes common parsed 837 field names into `ClaimInput` in `models.py`.
+The loader accepts either a list of claims or an object with a `claims` array. It normalizes common parsed 837 field names into `ClaimInput` in `claim_status_agent/core/models.py`.
 
 ## Raw 837 EDI Import
 
-Use the dashboard's `EDI Import` panel to upload a raw `.edi`, `.x12`, or `.txt` 837 claim file. The deterministic parser in `edi_parser.py` reads X12 segments directly, groups parsed claims by patient, upserts claims by `claim_id`, and rewrites the configured claims JSON file.
+Use the dashboard's `EDI Import` panel to upload a raw `.edi`, `.x12`, or `.txt` 837 claim file. The deterministic parser in `claim_status_agent/claims/edi_parser.py` reads X12 segments directly, groups parsed claims by patient, upserts claims by `claim_id`, and rewrites the configured claims JSON file.
 
 The upload form supports optional payer name and payer phone overrides. Use the payer phone override when the EDI file only contains clearinghouse or submitter contact numbers.
 
@@ -122,22 +122,20 @@ The upload form supports optional payer name and payer phone overrides. Use the 
 
 The live bot exposes a `press_keypad` tool to the OpenAI LLM. When the IVR asks for a keypad selection, the tool sends Pipecat DTMF frames; on Twilio bidirectional Media Streams those are delivered as outbound audio tones because Twilio does not support outbound DTMF WebSocket events.
 
-The live bot also exposes `record_claim_outcome`. The agent should call it at the end of each claim discussion before moving to the next claim or closing the call, so the session includes an explicit workflow status, payer status, submitted claim ID, payer claim number, 835-like payment/denial fields, missing fields, and summary. If the call disconnects before the tool is called, `bot.py` creates fallback outcomes for claims missing an agent-recorded outcome.
+The live bot also exposes `record_claim_outcome`. The agent should call it at the end of each claim discussion before moving to the next claim or closing the call, so the session includes an explicit workflow status, payer status, submitted claim ID, payer claim number, 835-like payment/denial fields, missing fields, and summary. If the call disconnects before the tool is called, `claim_status_agent/voice/bot.py` creates fallback outcomes for claims missing an agent-recorded outcome.
 
 Use the dashboard's `Initial digits` field or the API's `initial_keypad_digits` value for known extensions or access codes that should be dialed immediately after the payer answers. Allowed initial characters are `0-9`, `A-D`, `*`, `#`, `w`, and `W`, with `w`/`W` as pauses.
 
-## Important Files
+## Project Layout
 
-- `server.py` - FastAPI web UI, API routes, Twilio webhooks.
-- `server_utils.py` - Twilio call creation and TwiML generation.
-- `bot.py` - Pipecat voice pipeline for the claim-status call.
-- `agent_tools.py` - OpenAI tool schema and persistence for per-claim call outcomes.
-- `recordings.py` - local Pipecat-side audio recording orchestration.
-- `recording_files.py` - local WAV file helpers and recording paths.
-- `ivr_tools.py` - OpenAI tool schema and IVR keypad frame handling.
-- `edi_parser.py` - deterministic X12 837 parser and patient grouping helpers.
-- `claim_store.py` - parsed JSON loader and normalizer.
-- `session_store.py` - local persisted call/session state.
-- `prompt_builder.py` - voice-agent call instructions.
-- `extractor.py` - transcript to 835-like result extraction.
+- `server.py` - compatibility entrypoint for `uv run server.py`.
+- `bot.py` - compatibility export for Pipecat bot discovery.
+- `claim_status_agent/api/` - FastAPI routes, Twilio call creation, and TwiML generation.
+- `claim_status_agent/claims/` - 837 parsing, claim normalization, claim storage, and transcript extraction.
+- `claim_status_agent/core/` - settings, Pydantic models, and voice-agent prompt construction.
+- `claim_status_agent/sessions/` - persisted call/session state.
+- `claim_status_agent/voice/` - Pipecat pipeline, IVR tools, outcome tools, and local recording helpers.
 - `static/` - vanilla HTML/CSS/JS dashboard.
+- `data/claims.json` - local claim fixture data used by the dashboard.
+- `samples/` - sample EDI files and reference docs.
+- `docs/architecture/` - diagrams for the data import, call lifecycle, and live agent loop.

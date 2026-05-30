@@ -15,9 +15,9 @@
 - Added an OpenAI `press_keypad` tool backed by Pipecat DTMF frames. Twilio bidirectional Media Streams do not accept outbound DTMF events, so the frame path emits keypad audio into the live stream.
 - Added optional Twilio `send_digits` for known initial extensions or access codes immediately after answer.
 - Used a no-build FastAPI static dashboard instead of React to keep the project mostly Python and quick to run locally.
-- Kept raw 837 parsing deterministic and local in `edi_parser.py` instead of adding an external parser dependency, so claim imports are testable and easy to adapt to payer-specific samples.
+- Kept raw 837 parsing deterministic and local in `claim_status_agent/claims/edi_parser.py` instead of adding an external parser dependency, so claim imports are testable and easy to adapt to payer-specific samples.
 - Isolated claim normalization, session persistence, prompt building, and transcript extraction into separate modules so later EDI/PDF ingestion can plug into `ClaimInput`.
-- Used deterministic post-call extraction for the MVP. A stricter LLM schema extractor can replace `extractor.py` without touching the call flow.
+- Used deterministic post-call extraction for the MVP. A stricter LLM schema extractor can replace `claim_status_agent/claims/extractor.py` without touching the call flow.
 - Added local Pipecat-side WAV recording with `AudioBufferProcessor` so calls can be reviewed without depending on Twilio-hosted recordings.
 
 ## Next Steps

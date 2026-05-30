@@ -1,23 +1,32 @@
 from pathlib import Path
 import wave
 
-from agent_tools import fallback_claim_outcome, normalize_claim_outcome_status, normalize_payer_status
-from claim_store import ClaimStore
-from claim_store import normalize_claim
-from edi_parser import parse_837_claims
-from extractor import extract_claim_status_results
-from ivr_tools import (
+from claim_status_agent.api.twilio import TwimlRequest, generate_twiml
+from claim_status_agent.claims.edi_parser import parse_837_claims
+from claim_status_agent.claims.extractor import extract_claim_status_results
+from claim_status_agent.claims.store import ClaimStore, normalize_claim
+from claim_status_agent.core.models import (
+    CallRecording,
+    ClaimCallOutcome,
+    ClaimStatusResult,
+    CreateCallRequest,
+    TranscriptEntry,
+)
+from claim_status_agent.core.prompts import build_claim_call_system_prompt, build_initial_user_message
+from claim_status_agent.sessions.store import SessionStore
+from claim_status_agent.voice.agent_tools import (
+    fallback_claim_outcome,
+    normalize_claim_outcome_status,
+    normalize_payer_status,
+)
+from claim_status_agent.voice.ivr_tools import (
     keypad_frames,
     keypad_tool_schema,
     normalize_initial_keypad_digits,
     wait_for_user_tool_schema,
 )
-from models import CallRecording, ClaimCallOutcome, ClaimStatusResult, CreateCallRequest, TranscriptEntry
+from claim_status_agent.voice.recording_files import audio_duration_seconds, write_wav
 from pipecat.frames.frames import OutputAudioRawFrame, OutputDTMFUrgentFrame
-from prompt_builder import build_claim_call_system_prompt, build_initial_user_message
-from recording_files import audio_duration_seconds, write_wav
-from server_utils import TwimlRequest, generate_twiml
-from session_store import SessionStore
 
 
 def test_normalize_claim_from_nested_payload():
@@ -45,7 +54,7 @@ def test_normalize_claim_from_nested_payload():
 
 
 def test_parse_raw_837_claims_grouped_by_patient():
-    text = Path("sample/edi-claims/raw-837/databricks-chpw-claimdata.txt").read_text()
+    text = Path("samples/edi-claims/raw-837/databricks-chpw-claimdata.txt").read_text()
 
     result = parse_837_claims(text, source_file="databricks-chpw-claimdata.txt")
 
@@ -66,7 +75,7 @@ def test_parse_raw_837_claims_grouped_by_patient():
 
 
 def test_parse_837_without_interchange_envelope():
-    text = Path("sample/edi-claims/raw-837/databricks-837p.txt").read_text()
+    text = Path("samples/edi-claims/raw-837/databricks-837p.txt").read_text()
     snippet = text[text.index("ST*837") : text.index("SE*41*1239~") + len("SE*41*1239~")]
 
     result = parse_837_claims(snippet, source_file="snippet.edi")
