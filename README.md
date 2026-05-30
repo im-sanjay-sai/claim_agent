@@ -2,6 +2,13 @@
 
 FastAPI and Pipecat MVP for outbound payer calls. The app can load normalized claim JSON or import raw 837 EDI files, lets a user select up to 3 claims, places an outbound Twilio call, streams the call into a voice agent, and writes transcript plus 835-like structured results to local session storage.
 
+The WebUI supports selecting parsed claims and reviewing live call/session output.
+The screenshots below show the claims list and status/result panels used for the MVP.
+
+![WebUI claims list](claims.png)
+
+![WebUI status results](status.png)
+
 ## What It Does
 
 - Loads normalized claim inputs from `data/claims.json`.
